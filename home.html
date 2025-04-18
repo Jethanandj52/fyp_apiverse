@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIverse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="home.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="assets/title-logo.png" alt="Apiverse Logo" class="logo-img">
+            <h1>APIverse</h1>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search APIs or Libraries..." oninput="filterAPIs()" autocomplete="off">
+            <div class="suggestions" id="suggestions"></div>
+        </div>
+        <div class="nav-links">
+            <div class="theme-user-container">
+                <button class="theme-toggle" title="Toggle Theme" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-profile">
+                    <button title="User Profile" onclick="toggleUserDropdown()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                <img src="assets/user-avatar.png" alt="User Avatar" id="userAvatar">
+                                <div class="fallback-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="user-details">
+                                <h4 id="userName">Loading...</h4>
+                                <p id="userEmail">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <a href="#" id="userSettings"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" id="userHelp"><i class="fas fa-question-circle"></i> Help & Support</a>
+                            <a href="#" id="userLogout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <h2><i class="fas fa-compass"></i> Navigation</h2>
+            <ul>
+                <li><a href="#" onclick="showSection('home')"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#" onclick="showSection('home')"><i class="fas fa-plug"></i> API</a></li>
+                <li><a href="#" onclick="showSection('docs')"><i class="fas fa-book"></i> Documentation</a></li>
+                <li><a href="#" onclick="showSection('team')"><i class="fas fa-users"></i> Team</a></li>
+                <li><a href="#" onclick="showSection('about')"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="#" onclick="showSection('contact')"><i class="fas fa-envelope"></i> Contact</a></li>
+            </ul>
+            <h2><i class="fas fa-filter"></i> Filters</h2>
+            <div>
+                <label>Language</label>
+                <select id="languageFilter" onchange="filterAPIs()">
+                    <option value="all">All</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="Python">Python</option>
+                    <option value="Java">Java</option>
+                </select>
+            </div>
+            <div>
+                <label>Category</label>
+                <select id="categoryFilter" onchange="filterAPIs()">
+                    <option value="all">All</option>
+                    <option value="Weather">Weather</option>
+                    <option value="News">News</option>
+                    <option value="Payment">Payment</option>
+                    <option value="Communication">Communication</option>
+                </select>
+            </div>
+            <div>
+                <label>Ratings</label>
+                <select id="ratingFilter" onchange="filterAPIs()">
+                    <option value="0">All</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <h2><i class="fas fa-search"></i> Explore APIs & Libraries</h2>
+                <div class="api-grid" id="apiGrid"></div>
+                <button class="see-more" id="seeMore" onclick="showAllAPIs()">See More</button>
+            </section>
+
+            <!-- Documentation Section -->
+            <section id="docs" class="section docs-section">
+                <h2><i class="fas fa-book-open"></i> Documentation</h2>
+                <div class="doc-item">
+                    <h3 onclick="toggleDoc(this)"><i class="fas fa-file-alt"></i> Official Documentation</h3>
+                    <p>Official guides for OpenWeatherMap API. Includes setup, endpoints, and rate limits.</p>
+                </div>
+                <div class="doc-item">
+                    <h3 onclick="toggleDoc(this)"><i class="fas fa-chalkboard-teacher"></i> Community Tutorials</h3>
+                    <p>Step-by-step tutorials on integrating OpenWeatherMap with JavaScript, Python, and Java.</p>
+                </div>
+                <div class="doc-item">
+                    <h3 onclick="toggleDoc(this)"><i class="fas fa-code"></i> Code Examples</h3>
+                    <pre><code>
+fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_KEY')
+  .then(res => res.json())
+  .then(data => console.log(data));
+          </code></pre>
+                </div>
+                <div class="doc-item">
+                    <h3 onclick="toggleDoc(this)"><i class="fas fa-tools"></i> Troubleshooting</h3>
+                    <p>Common issues: Invalid API keys, rate limit errors. Solutions: Verify key, check usage limits.</p>
+                </div>
+                <div class="doc-item">
+                    <h3 onclick="toggleDoc(this)"><i class="fas fa-history"></i> Version History</h3>
+                    <p>Latest version: 2.5. Breaking changes: Removed 'temp' field in v2.0. Migration guide available.</p>
+                </div>
+            </section>
+
+            <!-- Team Section -->
+            <section id="team" class="section">
+                <h2><i class="fas fa-users"></i> Our Team</h2>
+                <div class="team-section">
+                    <div class="team-card">
+                        <div class="team-member-img">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Jethanand">
+                            <div class="fallback-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <h3>Jethanand</h3>
+                        <p class="role">Team Leader & Backend Developer</p>
+                        <p>Experienced leader and backend developer with expertise in server-side architecture and team management.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-github"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-member-img">
+                            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Jai Parkash">
+                            <div class="fallback-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <h3>Jai Parkash</h3>
+                        <p class="role">Frontend Designer</p>
+                        <p>Creative frontend developer specializing in UI/UX design and user interface development.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-github"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-member-img">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Dileep Singh">
+                            <div class="fallback-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <h3>Dileep Singh</h3>
+                        <p class="role">Documentation Specialist</p>
+                        <p>Expert in technical documentation and project management with strong organizational skills.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-github"></i></a>
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="section about-section">
+                <h2><i class="fas fa-info-circle"></i> About APIverse</h2>
+                <p>APIverse is a centralized platform designed to simplify API and library management for developers. Our mission is to provide a seamless experience for discovering, integrating, and managing APIs with robust security, documentation, and
+                    versioning support.</p>
+                <p>Built by a team of passionate Computer Science students, APIverse aims to empower developers worldwide by addressing common challenges like security vulnerabilities, outdated documentation, and complex integration processes.</p>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="section contact-section">
+                <h2><i class="fas fa-envelope"></i> Contact Us</h2>
+                <p>Have questions or feedback? Reach out to us!</p>
+                <p>Email: support@apiverse.com</p>
+                <p>Phone: +92 123 456 7890</p>
+                <p>Address: Benazir Bhutto Shaheed University, Lyari, Karachi</p>
+            </section>
+        </main>
+    </div>
+
+    <!-- Integration Modal -->
+    <div class="modal" id="integrationModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Integration Code</h3>
+            <p id="modalInstructions"></p>
+            <textarea id="codeArea" readonly></textarea>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-main">
+                <div class="footer-logo">
+                    <img src="assets/title-logo.png" alt="Apiverse Logo" class="logo-img">
+                    <h2>Apiverse</h2>
+                </div>
+                <p class="footer-description">Your gateway to the world of APIs. Discover, integrate, and innovate with our comprehensive API marketplace.</p>
+                <div class="newsletter">
+                    <h3>Subscribe to our Apiverse</h3>
+                    <div class="newsletter-input">
+                        <input type="email" placeholder="Enter your email">
+                        <button>Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#apis">APIs</a></li>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="#about">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#tutorials">Tutorials</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#support">Support</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+                    </div>
+                    <div class="contact-info">
+                        <p><i class="fas fa-envelope"></i> apiverse@gmail.com</p>
+                        <p><i class="fas fa-phone"></i> +923042507846</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Apiverse. All rights reserved.</p>
+            <div class="footer-legal">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#cookies">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

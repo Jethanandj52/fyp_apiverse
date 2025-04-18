@@ -197,3 +197,16 @@ button:active{
         gap: 10px;
     }
 }
+
+ 
+#togglePassword{
+
+   position:absolute;
+   top: 41.8%;
+   left: 84%; 
+   font-size: 12px;
+   cursor: pointer;
+
+
+}
+ 
