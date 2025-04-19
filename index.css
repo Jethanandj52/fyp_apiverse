@@ -1,12 +1,15 @@
-*{
-    font-family: 'Poppins', sans-serif; 
-
+* {
+    font-family: 'Poppins', sans-serif;
 }
-body{
+
+body {
     margin: 0;
     padding: 0;
 }
+
+
 /* style.css */
+
 * {
     margin: 0;
     padding: 0;
@@ -109,29 +112,23 @@ body{
     font-size: 15px;
     display: flex;
     padding: 10px;
-     font-weight: bold;
-     transition: 0.3s;
+    font-weight: bold;
+    transition: 0.3s;
     cursor: pointer;
-   
 }
 
 .google-btn img {
-    width: 20px;    /* Fixed image size */
-    height: 20px;   /* Fixed image size */
+    width: 20px;
+    /* Fixed image size */
+    height: 20px;
+    /* Fixed image size */
     object-fit: contain;
-     
-     /* Aligns vertically with text */
+    /* Aligns vertically with text */
 }
-
-
-
-
 
 .google-btn:hover {
     background-color: #eee;
 }
-
- 
 
 .signup-text {
     margin-top: 15px;
@@ -139,25 +136,27 @@ body{
     color: #fff;
 }
 
-  a {
+a {
     color: #03a9f4;
     text-decoration: none;
 }
+
 .extras {
     display: flex;
     justify-content: space-between;
-      /* Make sure everything aligns vertically */
+    /* Make sure everything aligns vertically */
     font-size: 14px;
     color: #fff;
-   
-    flex-wrap: nowrap;  /* Prevent line break */
+    flex-wrap: nowrap;
+    /* Prevent line break */
 }
 
 .remember-me {
     display: flex;
-     
-    gap: 10px; /* space between checkbox and text */
-    white-space: nowrap; /* Prevent wrapping */
+    gap: 10px;
+    /* space between checkbox and text */
+    white-space: nowrap;
+    /* Prevent wrapping */
 }
 
 .remember-me input[type="checkbox"] {
@@ -165,32 +164,30 @@ body{
     accent-color: #03a9f4;
     cursor: pointer;
     margin-top: -6px;
-     
 }
 
-a:hover{
+a:hover {
     color: #95cce6;
 }
-button:active{
+
+button:active {
     transform: scale(0.9);
 }
+
 @media screen and (max-width: 480px) {
     #loginPage {
         padding: 1.5rem;
         border-radius: 10px;
     }
-
     .login-btn,
     .google-btn {
         font-size: 0.9rem;
         height: 2.4rem;
     }
-
     #loginPage input {
         height: 2rem;
         font-size: 0.9rem;
     }
-
     .extras {
         flex-direction: column;
         align-items: flex-start;
@@ -198,15 +195,10 @@ button:active{
     }
 }
 
- 
-#togglePassword{
-
-   position:absolute;
-   top: 41.8%;
-   left: 84%; 
-   font-size: 12px;
-   cursor: pointer;
-
-
+#togglePassword {
+    position: absolute;
+    top: 41.8%;
+    left: 84%;
+    font-size: 12px;
+    cursor: pointer;
 }
- 

@@ -26,6 +26,10 @@
                 <button class="theme-toggle" title="Toggle Theme" onclick="toggleTheme()">
                     <i class="fas fa-moon"></i>
                 </button>
+                <div class="like-notification" title="Liked Cards" onclick="showLikedCards()">
+                    <i class="fas fa-heart"></i>
+                    <span class="like-count">0</span>
+                </div>
                 <div class="user-profile">
                     <button title="User Profile" onclick="toggleUserDropdown()">
                         <i class="fas fa-user"></i>
@@ -50,6 +54,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="notification-icon" title="Notifications" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count">0</span>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h3>Notifications</h3>
+                            <button onclick="clearNotifications()">Clear All</button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be added here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
@@ -61,8 +78,8 @@
         <aside class="sidebar" id="sidebar">
             <h2><i class="fas fa-compass"></i> Navigation</h2>
             <ul>
-                <li><a href="#" onclick="showSection('home')"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#" onclick="showSection('home')"><i class="fas fa-plug"></i> API</a></li>
+                <li><a href="#" onclick="showSection('home'); showAllCards()"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#" onclick="showSection('home'); showAllCards()"><i class="fas fa-plug"></i> API</a></li>
                 <li><a href="#" onclick="showSection('docs')"><i class="fas fa-book"></i> Documentation</a></li>
                 <li><a href="#" onclick="showSection('team')"><i class="fas fa-users"></i> Team</a></li>
                 <li><a href="#" onclick="showSection('about')"><i class="fas fa-info-circle"></i> About</a></li>
@@ -102,7 +119,7 @@
         <main class="main-content">
             <!-- Home Section -->
             <section id="home" class="section active">
-                <h2>  Explore APIs & Libraries</h2> <br>
+                <h2 class="section-title">Explore APIs & Libraries</h2>
                 <div class="api-grid" id="apiGrid"></div>
                 <button class="see-more" id="seeMore" onclick="showAllAPIs()">See More</button>
             </section>
@@ -142,8 +159,8 @@ fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_K
                 <div class="team-section">
                     <div class="team-card">
                         <div class="team-member-img">
-                        <img src="assets/jethanand.png" alt="" srcset="">                            
-                            
+                            <img src="assets/jethanand.png" alt="" srcset="">
+
                         </div>
                         <h3>Jethanand</h3>
                         <p class="role">Team Leader & Backend Developer</p>
@@ -156,8 +173,8 @@ fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_K
                     </div>
                     <div class="team-card">
                         <div class="team-member-img">
-                        <img src="assets/image.png" alt="" srcset="">
-                            
+                            <img src="assets/image.png" alt="" srcset="">
+
                         </div>
                         <h3>Jai Parkash</h3>
                         <p class="role">Frontend Designer</p>
@@ -170,8 +187,8 @@ fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_K
                     </div>
                     <div class="team-card">
                         <div class="team-member-img">
-                        <img src="assets/dileep.png" alt="" srcset="">
-                             
+                            <img src="assets/dileep.png" alt="" srcset="">
+
                         </div>
                         <h3>Dileep Singh</h3>
                         <p class="role">Documentation Specialist</p>
@@ -205,12 +222,11 @@ fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_K
     </div>
 
     <!-- Integration Modal -->
-    <div class="modal" id="integrationModal">
+    <div id="integrationModal" class="modal">
         <div class="modal-content">
-            <h3 id="modalTitle">Integration Code</h3>
-            <p id="modalInstructions"></p>
-            <textarea id="codeArea" readonly></textarea>
-            <button onclick="closeModal()">Close</button>
+            <div id="modalContent">
+                <!-- Content will be dynamically inserted here -->
+            </div>
         </div>
     </div>
 
@@ -275,7 +291,19 @@ fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_K
         </div>
     </footer>
 
-    <script type="module" src="app.js"></script>
+
+
+    <!-- Documentation Modal -->
+    <div id="documentationModal" class="modal">
+        <div class="modal-content">
+            <div id="docModalContent">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script-config.js"></script>
+    <script src="app.js" type="module"></script>
 </body>
 
 </html>
