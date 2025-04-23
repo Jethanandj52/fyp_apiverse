@@ -282,7 +282,7 @@ window.viewDocumentation = async function(apiId) {
 
             // Show the popup
             const docPopup = document.getElementById("docPopup");
-            docPopup.style.display = "flex";
+            docPopup.style.display = "f";
 
             // Update popup content with improved layout and edit buttons
             document.getElementById("addDoc").innerHTML = `

@@ -206,6 +206,9 @@
 #apiHomeCardContainer {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    align-items: center;
+    
+   margin-left: 10px;
 }
 
 .veiwBtn {
@@ -422,7 +425,7 @@ body.light-theme .favorite-api-card .integrate-btn:hover {
 
 #userInfo {
     position: absolute;
-    top: 60px;
+    top: 30px;
     right: 20px;
     background-color: #1e293b;
     border-radius: 10px;
