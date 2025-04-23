@@ -4,306 +4,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APIverse</title>
+    <title>Admin APIvser</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="home2.css">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="home.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo-container">
-            <img src="assets/title-logo.png" alt="Apiverse Logo" class="logo-img">
-            <h1>APIverse</h1>
-        </div>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search APIs or Libraries..." oninput="filterAPIs()" autocomplete="off">
-            <div class="suggestions" id="suggestions"></div>
-        </div>
-        <div class="nav-links">
-            <div class="theme-user-container">
-                <button class="theme-toggle" title="Toggle Theme" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <div class="like-notification" title="Liked Cards" onclick="showLikedCards()">
-                    <i class="fas fa-heart"></i>
-                    <span class="like-count">0</span>
+<body id="body">
+    <div>
+        <div class="admin">
+            <div class="nav">
+                <div class="navFirst">
+                    <img src="assets/title-logo.png" alt="">
+                    <div class="name">APIVerse</div>
                 </div>
-                <div class="user-profile">
-                    <button title="User Profile" onclick="toggleUserDropdown()">
-                        <i class="fas fa-user"></i>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <div class="user-info">
-                            <div class="user-avatar">
-                                <img src="assets/user-avatar.png" alt="User Avatar" id="userAvatar">
-                                <div class="fallback-avatar">
-                                    <i class="fas fa-user"></i>
-                                </div>
+                <div class="navSearch">
+                    <input type="text" placeholder="Search APIs..." id="searchingApi">
+                </div>
+                <div class="navIcon">
+                    <i class="fa-solid fa-bell" class="ii" onclick="toggleNotifications()"></i>
+
+                    <i class="fa-solid fa-user" onclick="userhomeContainer()"> </i>
+                    <i class="fa fa-heart"></i>
+
+
+                </div>
+            </div>
+            <div class="sidebar">
+                <div class="sidebarFirst">
+                    <div class="navigation">
+                        <i class="fas fa-compass"></i>
+                        <div class="name">Navigation</div>
+                    </div>
+                    <div class="sidebarSecond">
+                        <div class="navigation2" onclick="home()">
+                            <i class="fas fa-home"></i>
+                            <div class="name">Home</div>
+                        </div>
+                        <div class="navigation2" onclick="apis()">
+                            <i class="fas fa-plug"></i>
+                            <div class="name">API</div>
+                        </div>
+                        <div class="navigation2" onclick="doc()">
+                            <i class="fas fa-book"></i>
+                            <div class="name">Documentation</div>
+                        </div>
+                        <div class="navigation2" onclick="team()">
+                            <i class="fas fa-users"></i>
+                            <div class="name">Team</div>
+                        </div>
+                        <div class="navigation2" onclick="information()">
+                            <i class="fas fa-info-circle"></i>
+                            <div class="name">Information</div>
+                        </div>
+                        <div class="navigation2" onclick="contact()">
+                            <i class="fas fa-contact-book"></i>
+                            <div class="name">Contact</div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="main">
+                <div id="overview" style="display: none;">
+                    <div class=" overview">
+                        <i class="fas fa-home"></i>
+                        <div class="name">Dashboard Overview</div>
+                    </div>
+
+                    <div class="mainCard">
+                        <div class="cards">
+                            <div class="cardName">Total APIs</div>
+                            <div id="apiCountDiv"></div>
+
+                        </div>
+
+                        <div class="cards">
+                            <div class="cardName">Active Users</div>
+                            <div id="userCount">0</div>
+                        </div>
+
+                        <div class="cards">
+                            <div class="cardName">API Calls Today </div>
+                            <div class="cardCount" id="apiCall">0</div>
+                        </div>
+
+                        <div class="cards">
+                            <div class="cardName">Security Alerts</div>
+                            <div class="cardCount" id="apiSecurity">0</div>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>API Usage Over Time</h3>
+                        <canvas id="apiUsageChart"></canvas>
+                    </div>
+
+                </div>
+                <!-- api managment -->
+                <div id="home" style="display: block;">
+                    <div class=" overview" id="sideApi">
+                        <i class="fas fa-home"></i>
+                        <div class="name">Home</div>
+                    </div>
+                    <div id="apiHomeCardContainer"></div>
+
+                </div>
+
+
+                <div id="doc" style="display: none;">
+                    <div class=" overview" id="sideApi">
+                        <i class="fas fa-home"></i>
+                        <div class="name">Documentation Of Api</div>
+                    </div>
+                    <section class="api-info-section">
+                        <h2>📘 What is an API?</h2>
+                        <p><strong>API</strong> stands for <strong>Application Programming Interface</strong>. It is a set of rules and protocols that allow one software application to communicate or interact with another.</p>
+                        <p>In simple words, <strong>API ek bridge hoti hai do different systems ke beech</strong>, jisse wo safely data exchange kar sakte hain.</p>
+                      
+                        <h3>🛠️ Example of API in Real Life</h3>
+                        <p>Just like a waiter in a restaurant takes your order and brings your food from the kitchen,<br>
+                        an API takes your request (like data for weather, movie, user, etc.), goes to the server, and brings the response back.</p>
+                      
+                        <h3>💡 Importance of APIs</h3>
+                        <ul>
+                          <li><strong>Seamless Integration:</strong> APIs allow integration between different software systems and services (e.g., Google Maps in a travel app).</li>
+                          <li><strong>Faster Development:</strong> Developers can use existing APIs instead of building everything from scratch (e.g., payment APIs like Stripe).</li>
+                          <li><strong>Modular Architecture:</strong> APIs promote modular development, making apps scalable and maintainable.</li>
+                          <li><strong>Data Access:</strong> APIs provide access to third-party data — like weather, news, finance, movies — in a structured format.</li>
+                          <li><strong>Security:</strong> APIs can restrict access and allow controlled sharing using API keys or tokens.</li>
+                        </ul>
+                      
+                        <h3>🔍 Types of APIs</h3>
+                        <table border="1" cellpadding="8" cellspacing="0">
+                          <thead>
+                            <tr>
+                              <th>Type</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>REST API</td>
+                              <td>Most common; uses HTTP methods (GET, POST, etc.)</td>
+                            </tr>
+                            <tr>
+                              <td>SOAP API</td>
+                              <td>Older, XML-based communication</td>
+                            </tr>
+                            <tr>
+                              <td>GraphQL API</td>
+                              <td>Flexible querying of data, developed by Facebook</td>
+                            </tr>
+                            <tr>
+                              <td>Web APIs</td>
+                              <td>Specifically designed for browser-based communication</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      
+                        <h3>🧩 Real-World API Usage</h3>
+                        <ul>
+                          <li><strong>Weather App:</strong> Uses APIs like WeatherAPI to show forecasts.</li>
+                          <li><strong>Login with Google:</strong> Uses Google OAuth API.</li>
+                          <li><strong>E-commerce Site:</strong> Uses payment gateway APIs (Stripe, Razorpay).</li>
+                          <li><strong>Social Media:</strong> Uses Twitter/Facebook APIs for data & posts.</li>
+                        </ul>
+                      </section>
+                      
+
+                </div>
+
+                <!-- usermanagment -->
+                <section id="team" class="section">
+                    <h2><i class="fas fa-users"></i> Our Team</h2>
+                    <div class="team-section">
+                        <div class="team-card">
+                            <div class="team-member-img">
+                                <img src="assets/jethanand.png" alt="" srcset="">
+
                             </div>
-                            <div class="user-details">
-                                <h4 id="userName">Loading...</h4>
-                                <p id="userEmail">Loading...</p>
+                            <h3>Jethanand</h3>
+                            <p class="role">Team Leader & Backend Developer</p>
+                            <p>Experienced leader and backend developer with expertise in server-side architecture and team management.</p>
+                            <div class="social-links">
+                                <a href="#"><i class="fab fa-github"></i></a>
+                                <a href="#"><i class="fab fa-linkedin"></i></a>
+                                <a href="#"><i class="fab fa-facebook"></i></a>
                             </div>
                         </div>
-                        <div class="user-actions">
-                            <a href="#" id="userSettings"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="#" id="userHelp"><i class="fas fa-question-circle"></i> Help & Support</a>
-                            <a href="#" id="userLogout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <div class="team-card">
+                            <div class="team-member-img">
+                                <img src="assets/image.png" alt="" srcset="">
+
+                            </div>
+                            <h3>Jai Parkash</h3>
+                            <p class="role">Frontend Designer</p>
+                            <p>Creative frontend developer specializing in UI/UX design and user interface development.</p>
+                            <div class="social-links">
+                                <a href="#"><i class="fab fa-github"></i></a>
+                                <a href="#"><i class="fab fa-linkedin"></i></a>
+                                <a href="#"><i class="fab fa-facebook"></i></a>
+                            </div>
+                        </div>
+                        <div class="team-card">
+                            <div class="team-member-img">
+                                <img src="assets/dileep.png" alt="" srcset="">
+
+                            </div>
+                            <h3>Dileep Singh</h3>
+                            <p class="role">Documentation Specialist</p>
+                            <p>Expert in technical documentation and project management with strong organizational skills.</p>
+                            <div class="social-links">
+                                <a href="#"><i class="fab fa-github"></i></a>
+                                <a href="#"><i class="fab fa-linkedin"></i></a>
+                                <a href="#"><i class="fab fa-facebook"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- About Section -->
+                <section id="about" class="section about-section">
+                    <h2><i class="fas fa-info-circle"></i> About APIverse</h2>
+                    <p>APIverse is a centralized platform designed to simplify API and library management for developers. Our mission is to provide a seamless experience for discovering, integrating, and managing APIs with robust security, documentation,
+                        and versioning support.</p>
+                    <p>Built by a team of passionate Computer Science students, APIverse aims to empower developers worldwide by addressing common challenges like security vulnerabilities, outdated documentation, and complex integration processes.</p>
+                </section>
+
+                <!-- Contact Section -->
+                <section id="contact" class="section contact-section">
+                    
+                    <h2><i class="fas fa-envelope"></i> Contact Us</h2>
+                    <p>Have questions or feedback? Reach out to us!</p>
+                    <p>Email: apiverse@gmail.com</p>
+                    <p>Phone: +92 304 2507846</p>
+                    <p>Address: Benazir Bhutto Shaheed University, Lyari, Karachi</p>
+                </section>
+                <!-- analytics -->
+
+            </div>
+            <div class="footer">
+                <div class="footer-content">
+                    <div class="footer-main">
+                        <div class="footer-logo">
+                            <img src="assets/title-logo.png" alt="Apiverse Logo" class="logo-img" onerror="this.style.display='none'">
+                            <h2>Apiverse</h2>
+                        </div>
+                        <p class="footer-description">Your gateway to the world of APIs. Discover, integrate, and innovate.</p>
+                    </div>
+
+
+
+                    <div class="footer-links">
+                        <div class="footer-section">
+                            <h3>Quick Links</h3>
+                            <ul>
+                                <li><a href="#overview" onclick="overview()">Overview</a></li>
+                                <li><a href="#api-management" onclick="apiManagment()">API Management</a></li>
+                                <li><a href="#user-management" onclick="userManagment()">User Management</a></li>
+                                <li><a href="#analytics" onclick="analytics()">Analytics</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-section">
+                            <h3>Resources</h3>
+                            <ul>
+                                <li><a href="#tutorials">Tutorials</a></li>
+                                <li><a href="#blog">Blog</a></li>
+                                <li><a href="#support">Support</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-section">
+                            <h3>Connect With Us</h3>
+                            <div class="social-links">
+                                <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                            <div class="contact-info">
+                                <p><i class="fas fa-envelope"></i> support@apiverse.com</p>
+                                <p><i class="fas fa-phone"></i> +923042507846</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="notification-icon" title="Notifications" onclick="toggleNotifications()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-count">0</span>
-                    <div class="notification-dropdown" id="notificationDropdown">
-                        <div class="notification-header">
-                            <h3>Notifications</h3>
-                            <button onclick="clearNotifications()">Clear All</button>
-                        </div>
-                        <div class="notification-list" id="notificationList">
-                            <!-- Notifications will be added here -->
-                        </div>
+                <div class="footer-bottom">
+                    <p>© 2025 Apiverse. All rights reserved.</p>
+                    <div class="footer-legal">
+                        <a href="#privacy">Privacy Policy</a>
+                        <a href="#terms">Terms of Service</a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
-    </nav>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <h2><i class="fas fa-compass"></i> Navigation</h2>
-            <ul>
-                <li><a href="#" onclick="showSection('home'); showAllCards()"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#" onclick="showSection('home'); showAllCards()"><i class="fas fa-plug"></i> API</a></li>
-                <li><a href="#" onclick="showSection('docs')"><i class="fas fa-book"></i> Documentation</a></li>
-                <li><a href="#" onclick="showSection('team')"><i class="fas fa-users"></i> Team</a></li>
-                <li><a href="#" onclick="showSection('about')"><i class="fas fa-info-circle"></i> About</a></li>
-                <li><a href="#" onclick="showSection('contact')"><i class="fas fa-envelope"></i> Contact</a></li>
-            </ul>
-            <h2><i class="fas fa-filter"></i> Filters</h2>
-            <div>
-                <label>Language</label>
-                <select id="languageFilter" onchange="filterAPIs()">
-                    <option value="all">All</option>
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="Python">Python</option>
-                    <option value="Java">Java</option>
-                </select>
-            </div>
-            <div>
-                <label>Category</label>
-                <select id="categoryFilter" onchange="filterAPIs()">
-                    <option value="all">All</option>
-                    <option value="Weather">Weather</option>
-                    <option value="News">News</option>
-                    <option value="Payment">Payment</option>
-                    <option value="Communication">Communication</option>
-                </select>
-            </div>
-            <div>
-                <label>Ratings</label>
-                <select id="ratingFilter" onchange="filterAPIs()">
-                    <option value="0">All</option>
-                    <option value="4">4+ Stars</option>
-                    <option value="3">3+ Stars</option>
-                </select>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Home Section -->
-            <section id="home" class="section active">
-                <h2 class="section-title">Explore APIs & Libraries</h2>
-                <div class="api-grid" id="apiGrid"></div>
-                <button class="see-more" id="seeMore" onclick="showAllAPIs()">See More</button>
-            </section>
-
-            <!-- Documentation Section -->
-            <section id="docs" class="section docs-section">
-                <h2><i class="fas fa-book-open"></i> Documentation</h2>
-                <div class="doc-item">
-                    <h3 onclick="toggleDoc(this)"><i class="fas fa-file-alt"></i> Official Documentation</h3>
-                    <p>Official guides for OpenWeatherMap API. Includes setup, endpoints, and rate limits.</p>
-                </div>
-                <div class="doc-item">
-                    <h3 onclick="toggleDoc(this)"><i class="fas fa-chalkboard-teacher"></i> Community Tutorials</h3>
-                    <p>Step-by-step tutorials on integrating OpenWeatherMap with JavaScript, Python, and Java.</p>
-                </div>
-                <div class="doc-item">
-                    <h3 onclick="toggleDoc(this)"><i class="fas fa-code"></i> Code Examples</h3>
-                    <pre><code>
-fetch('https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_KEY')
-  .then(res => res.json())
-  .then(data => console.log(data));
-          </code></pre>
-                </div>
-                <div class="doc-item">
-                    <h3 onclick="toggleDoc(this)"><i class="fas fa-tools"></i> Troubleshooting</h3>
-                    <p>Common issues: Invalid API keys, rate limit errors. Solutions: Verify key, check usage limits.</p>
-                </div>
-                <div class="doc-item">
-                    <h3 onclick="toggleDoc(this)"><i class="fas fa-history"></i> Version History</h3>
-                    <p>Latest version: 2.5. Breaking changes: Removed 'temp' field in v2.0. Migration guide available.</p>
-                </div>
-            </section>
-
-            <!-- Team Section -->
-            <section id="team" class="section">
-                <h2><i class="fas fa-users"></i> Our Team</h2>
-                <div class="team-section">
-                    <div class="team-card">
-                        <div class="team-member-img">
-                            <img src="assets/jethanand.png" alt="" srcset="">
-
-                        </div>
-                        <h3>Jethanand</h3>
-                        <p class="role">Team Leader & Backend Developer</p>
-                        <p>Experienced leader and backend developer with expertise in server-side architecture and team management.</p>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-github"></i></a>
-                            <a href="#"><i class="fab fa-linkedin"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                    <div class="team-card">
-                        <div class="team-member-img">
-                            <img src="assets/image.png" alt="" srcset="">
-
-                        </div>
-                        <h3>Jai Parkash</h3>
-                        <p class="role">Frontend Designer</p>
-                        <p>Creative frontend developer specializing in UI/UX design and user interface development.</p>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-github"></i></a>
-                            <a href="#"><i class="fab fa-linkedin"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                    <div class="team-card">
-                        <div class="team-member-img">
-                            <img src="assets/dileep.png" alt="" srcset="">
-
-                        </div>
-                        <h3>Dileep Singh</h3>
-                        <p class="role">Documentation Specialist</p>
-                        <p>Expert in technical documentation and project management with strong organizational skills.</p>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-github"></i></a>
-                            <a href="#"><i class="fab fa-linkedin"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- About Section -->
-            <section id="about" class="section about-section">
-                <h2><i class="fas fa-info-circle"></i> About APIverse</h2>
-                <p>APIverse is a centralized platform designed to simplify API and library management for developers. Our mission is to provide a seamless experience for discovering, integrating, and managing APIs with robust security, documentation, and
-                    versioning support.</p>
-                <p>Built by a team of passionate Computer Science students, APIverse aims to empower developers worldwide by addressing common challenges like security vulnerabilities, outdated documentation, and complex integration processes.</p>
-            </section>
-
-            <!-- Contact Section -->
-            <section id="contact" class="section contact-section">
-                <h2><i class="fas fa-envelope"></i> Contact Us</h2>
-                <p>Have questions or feedback? Reach out to us!</p>
-                <p>Email: apiverse@gmail.com</p>
-                <p>Phone: +92 304 2507846</p>
-                <p>Address: Benazir Bhutto Shaheed University, Lyari, Karachi</p>
-            </section>
-        </main>
     </div>
 
-    <!-- Integration Modal -->
-    <div id="integrationModal" class="modal">
-        <div class="modal-content">
-            <div id="modalContent">
-                <!-- Content will be dynamically inserted here -->
+    <section id="popup">
+        <div id="addAPI">
+            <div class="addApiName">
+                <h1>Add API</h1>
+                <i class="fa fa-xmark" onclick="cancel()"></i>
+            </div>
+            <div class="addApiInput">
+                <!-- Basic API Information -->
+                <h3>Basic Information</h3>
+                <label for="apiName">API Name</label>
+                <input type="text" id="apiName" placeholder="e.g. OpenWeather API" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" cols="30" rows="5" placeholder="Short description about the API" required></textarea>
+
+                <label for="language">Language (comma-separated)</label>
+                <input type="text" id="language" placeholder="e.g. JavaScript, Python">
+
+                <label for="category">Category</label>
+                <select id="category" required>
+                  <option selected disabled>Select Category</option>
+                  <option value="Weather">Weather</option>
+                  <option value="News">News</option>
+                  <option value="Payment">Payment</option>
+                  <option value="Communication">Communication</option>
+                  <option value="Geolocation">Geolocation</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Development">Development</option>
+                </select>
+
+                <label for="security">Security</label>
+                <input type="text" id="security" placeholder="e.g. No known vulnerabilities" required>
+
+                <label for="license">License</label>
+                <input type="text" id="license" placeholder="e.g. MIT" required>
+
+                <!-- Documentation Section -->
+                <h3>Documentation</h3>
+                <label for="docTitle">Documentation Title</label>
+                <input type="text" id="docTitle" placeholder="e.g. OpenWeatherMap API Documentation" required>
+
+                <label for="docDescription">Documentation Description</label>
+                <textarea id="docDescription" cols="30" rows="5" placeholder="Detailed description about the API documentation" required></textarea>
+
+                <label for="endpoints">Endpoints</label>
+                <textarea id="endpoints" cols="30" rows="5" placeholder="List of available endpoints and their descriptions" required></textarea>
+
+                <label for="parameters">Parameters</label>
+                <textarea id="parameters" cols="30" rows="5" placeholder="List of parameters and their descriptions" required></textarea>
+
+                <label for="examples">Documentation Examples</label>
+                <textarea id="examples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <!-- Integration Section -->
+                <h3>Integration</h3>
+                <label for="integrationTitle">Integration Title</label>
+                <input type="text" id="integrationTitle" placeholder="e.g. OpenWeatherMap Integration" required>
+
+                <label for="integrationDescription">Integration Description</label>
+                <textarea id="integrationDescription" cols="30" rows="5" placeholder="Description of the integration process" required></textarea>
+
+                <label for="setupSteps">Setup Steps</label>
+                <textarea id="setupSteps" cols="30" rows="5" placeholder="Step-by-step setup instructions" required></textarea>
+
+                <label for="codeExamples">Integration Code Examples</label>
+                <textarea id="codeExamples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <button id="addApiBtn" onclick="addData()">Add API</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Popup -->
+    <section id="docPopup">
+        <div id="addDoc">
+            <div class="addApiName">
+                <h1>Add Documentation</h1>
+                <i class="fa fa-xmark" onclick="closeDocPopup()"></i>
+            </div>
+            <div class="addApiInput">
+                <label for="docTitle">Documentation Title</label>
+                <input type="text" id="docTitle" placeholder="e.g. OpenWeatherMap API Documentation" required>
+
+                <label for="docDescription">Description</label>
+                <textarea id="docDescription" cols="30" rows="5" placeholder="Detailed description about the API documentation" required></textarea>
+
+                <label for="endpoints">Endpoints</label>
+                <textarea id="endpoints" cols="30" rows="5" placeholder="List of available endpoints and their descriptions" required></textarea>
+
+                <label for="parameters">Parameters</label>
+                <textarea id="parameters" cols="30" rows="5" placeholder="List of parameters and their descriptions" required></textarea>
+
+                <label for="examples">Examples</label>
+                <textarea id="examples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <button id="addDocBtn" onclick="addDocumentation()">Add Documentation</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integration Popup -->
+    <section id="integrationPopup">
+        <div id="addIntegration">
+            <div class="addApiName">
+                <h1>Add Integration Code</h1>
+                <i class="fa fa-xmark" onclick="closeIntegrationPopup()"></i>
+            </div>
+            <div class="addApiInput">
+                <label for="integrationTitle">Integration Title</label>
+                <input type="text" id="integrationTitle" placeholder="e.g. OpenWeatherMap Integration" required>
+
+                <label for="integrationDescription">Description</label>
+                <textarea id="integrationDescription" cols="30" rows="5" placeholder="Description of the integration process" required></textarea>
+
+                <label for="setupSteps">Setup Steps</label>
+                <textarea id="setupSteps" cols="30" rows="5" placeholder="Step-by-step setup instructions" required></textarea>
+
+                <label for="codeExamples">Code Examples</label>
+                <textarea id="codeExamples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <button id="addIntegrationBtn" onclick="addIntegration()">Add Integration</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification System -->
+    <div class="notification-container" id="notificationContainer">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="clearNotifications()">Clear All</button>
+        </div>
+        <div class="notification-list" id="notificationList"></div>
+    </div>
+
+    <div id="userInfo" style="display: none;">
+        <div class="usersIcon">
+            <div>
+                <i class="fa fa-user-circle"></i>
+            </div>
+            <div>
+                <div id="userName">Jethanand</div>
+                <div id="userEmail">Email@gmail.com</div>
+            </div>
+
+
+
+        </div>
+
+        <div class="otherInfo">
+            <div class="userIcon">
+                <i class="fa fa-cog"></i>
+                <span class="userRole">Setting</span>
+            </div>
+
+            <div class="userIcon">
+                <i class="fa fa-info-circle"></i>
+                <span class="userRole">Help</span>
+            </div>
+
+
+            <div id="logout">
+                <div onclick="logoutUser()"><i class="fa fa-sign-out"></i>Logout</div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-main">
-                <div class="footer-logo">
-                    <img src="assets/title-logo.png" alt="Apiverse Logo" class="logo-img">
-                    <h2>Apiverse</h2>
-                </div>
-                <p class="footer-description">Your gateway to the world of APIs. Discover, integrate, and innovate with our comprehensive API marketplace.</p>
-                <div class="newsletter">
-                    <h3>Subscribe to our Apiverse</h3>
-                    <div class="newsletter-input">
-                        <input type="email" placeholder="Enter your email">
-                        <button>Subscribe</button>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-links">
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#apis">APIs</a></li>
-                        <li><a href="#docs">Documentation</a></li>
-                        <li><a href="#about">About Us</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="#tutorials">Tutorials</a></li>
-                        <li><a href="#blog">Blog</a></li>
-                        <li><a href="#support">Support</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Connect With Us</h3>
-                    <div class="social-links">
-                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
-                    </div>
-                    <div class="contact-info">
-                        <p><i class="fas fa-envelope"></i> apiverse@gmail.com</p>
-                        <p><i class="fas fa-phone"></i> +923042507846</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Apiverse. All rights reserved.</p>
-            <div class="footer-legal">
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
-                <a href="#cookies">Cookie Policy</a>
-            </div>
-        </div>
-    </footer>
+
+
+    <script type="module" src="dashboard.js"></script>
+    <script src="home.js"></script>
 
 
 
-    <!-- Documentation Modal -->
-    <div id="documentationModal" class="modal">
-        <div class="modal-content">
-            <div id="docModalContent">
-                <!-- Content will be dynamically inserted here -->
-            </div>
-        </div>
-    </div>
 
-    <script src="script-config.js"></script>
-    <script src="app.js" type="module"></script>
+
 </body>
 
 </html>

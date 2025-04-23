@@ -1,4 +1,4 @@
-// Import Firebase core and authentication
+// Import Firebase core and modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
 import {
@@ -8,9 +8,23 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     sendPasswordResetEmail,
+    deleteUser,
+    signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-// Firebase configuration
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    getDoc,
+    query, where
+} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+// Your Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyA6jaYK4e7LFtqzycT-KO5sDYi7ipWf4oA",
     authDomain: "api-verse-dc2bc.firebaseapp.com",
@@ -25,29 +39,39 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-
-// Initialize Authentication
+// Auth & Firestore instances
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Function to load API data from Firestore
-async function loadAPIData() {
-    try {
-        const apisCollection = collection(db, 'apis');
-        const snapshot = await getDocs(apisCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-        console.error("Error loading API data:", error);
-        return [];
-    }
-}
-
+// Export all necessary functions and instances
 export {
-    getAuth,
     auth,
+    getAuth,
+    db,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
     sendPasswordResetEmail,
+    deleteUser,
+    doc,
+    setDoc,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    getDoc,
+    signOut,
+    query, where, onAuthStateChanged,
+    getFirestore
+};
 
-}
+
+
+
+
+
+
+
+
+

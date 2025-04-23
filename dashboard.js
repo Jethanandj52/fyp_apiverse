@@ -1,901 +1,1351 @@
 import {
     auth,
+    getAuth,
+    deleteUser,
+    createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
-    sendPasswordResetEmail
-} from "./script-config.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    sendPasswordResetEmail,
+    doc,
+    setDoc,
+    addDoc,
+    db,
+    collection,
+    getDocs,
+    deleteDoc,
+    getDoc,
+    signOut,
+    query,
+    where,
+    onAuthStateChanged
+} from './script-config.js';
 
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyA6jaYK4e7LFtqzycT-KO5sDYi7ipWf4oA",
-    authDomain: "api-verse-dc2bc.firebaseapp.com",
-    projectId: "api-verse-dc2bc",
-    storageBucket: "api-verse-dc2bc.appspot.com",
-    messagingSenderId: "692038670622",
-    appId: "1:692038670622:web:3ed37cf8f741078bb8910f",
-    measurementId: "G-9YF1DR0SFZ"
-};
+const ctx = document.getElementById('apiUsageChart').getContext('2d');
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-// Firestore Collections
-const apisCollection = db.collection('apis');
-const usersCollection = db.collection('users');
-
-// Load API Data from Firestore
-async function loadAPIData() {
-    try {
-        const snapshot = await apisCollection.get();
-        apiData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        displayedAPIs = [...apiData];
-        renderAPICards();
-        updateStats();
-    } catch (error) {
-        console.error('Error loading API data:', error);
-        // Fallback to dummy data if Firestore fails
-        apiData = [
-            { name: "OpenWeatherMap", description: "Weather data API", languages: ["JavaScript", "Python"], category: "Weather", trustScore: 8.5 },
-            { name: "NewsAPI", description: "Live news feeds", languages: ["Python", "Java"], category: "News", trustScore: 7.8 }
-        ];
-        displayedAPIs = [...apiData];
-        renderAPICards();
+new Chart(ctx, {
+    type: 'line', // Chart ka type (line, bar, pie, etc.)
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // X-axis ke values
+        datasets: [{
+            label: 'API Calls', // Line ka naam (legend mein aata hai)
+            data: [500, 700, 600, 800, 900, 1000], // Y-axis values
+            borderColor: '#60a5fa', // Line ka color
+            backgroundColor: 'transparent', // Fill color (transparent for line chart)
+            tension: 0, // Smooth curves
+            pointBackgroundColor: '#60a5fa' // Dots ka color
+        }]
+    },
+    options: {
+        responsive: true, // Mobile friendly
+        plugins: {
+            legend: {
+                labels: {
+                    color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff'
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff'
+                },
+                grid: {
+                    color: document.body.classList.contains('light-theme') ? '#e2e8f0' : '#334155'
+                }
+            },
+            y: {
+                beginAtZero: true, // Y-axis 0 se start kare
+                ticks: {
+                    color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff'
+                },
+                grid: {
+                    color: document.body.classList.contains('light-theme') ? '#e2e8f0' : '#334155'
+                }
+            }
+        }
     }
+});
+
+window.overview = function overview() {
+    let api = document.getElementById("apiManagment")
+    api.style.display = "none"
+
+    let overview = document.getElementById("overview")
+    overview.style.display = "block"
+
+    let userManagment = document.getElementById("userManagment")
+    userManagment.style.display = "none"
+
+    let analytics = document.getElementById("analytics")
+    analytics.style.display = "none"
 }
 
-// Add API to Firestore
-async function addAPIToFirestore(api) {
-    try {
-        const docRef = await apisCollection.add(api);
-        api.id = docRef.id;
-        apiData.push(api);
-        displayedAPIs = [...apiData];
-        renderAPICards();
-        updateStats();
-        addNotification('API Added', `${api.name} added successfully`);
-    } catch (error) {
-        console.error('Error adding API:', error);
-        alert('Failed to add API');
-    }
+window.apiManagment = function apiManagment() {
+    let api = document.getElementById("apiManagment")
+    api.style.display = "block"
+
+    let overview = document.getElementById("overview")
+    overview.style.display = "none"
+
+    let userManagment = document.getElementById("userManagment")
+    userManagment.style.display = "none"
+
+    let analytics = document.getElementById("analytics")
+    analytics.style.display = "none"
 }
 
-// Update API in Firestore
-async function updateAPIInFirestore(apiId, updatedAPI) {
-    try {
-        await apisCollection.doc(apiId).update(updatedAPI);
-        apiData = apiData.map(api => api.id === apiId ? {...api, ...updatedAPI } : api);
-        displayedAPIs = [...apiData];
-        renderAPICards();
-        updateStats();
-        addNotification('API Updated', `${updatedAPI.name} updated successfully`);
-    } catch (error) {
-        console.error('Error updating API:', error);
-        alert('Failed to update API');
-    }
+window.userManagment = function userManagment() {
+    let api = document.getElementById("apiManagment")
+    api.style.display = "none"
+
+    let overview = document.getElementById("overview")
+    overview.style.display = "none"
+
+    let userManagment = document.getElementById("userManagment")
+    userManagment.style.display = "block"
+
+    let analytics = document.getElementById("analytics")
+    analytics.style.display = "none"
 }
 
-// Delete API from Firestore
-async function deleteAPIFromFirestore(apiId) {
-    try {
-        await apisCollection.doc(apiId).delete();
-        apiData = apiData.filter(api => api.id !== apiId);
-        displayedAPIs = [...apiData];
-        renderAPICards();
-        updateStats();
-        addNotification('API Deleted', 'API removed successfully');
-    } catch (error) {
-        console.error('Error deleting API:', error);
-        alert('Failed to delete API');
-    }
+window.analytics = function analytics() {
+    let api = document.getElementById("apiManagment")
+    api.style.display = "none"
+
+    let overview = document.getElementById("overview")
+    overview.style.display = "none"
+
+    let userManagment = document.getElementById("userManagment")
+    userManagment.style.display = "none"
+
+    let analytics = document.getElementById("analytics")
+    analytics.style.display = "block"
 }
 
-// Load User Data from Firestore
-async function loadUserData() {
-    try {
-        const snapshot = await usersCollection.get();
-        userData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        displayedUsers = [...userData];
-        renderUserCards();
-        updateStats();
-    } catch (error) {
-        console.error('Error loading user data:', error);
-        // Fallback to dummy data if Firestore fails
-        userData = [
-            { id: '1', name: "Ali Khan", email: "ali@example.com", role: "User", status: "Active" },
-            { id: '2', name: "Sara Ahmed", email: "sara@example.com", role: "User", status: "Inactive" }
-        ];
-        displayedUsers = [...userData];
-        renderUserCards();
-    }
+window.backWindow = function backWindow() {
+    window.location.href = "home.html"
 }
 
-// Add User to Firestore
-async function addUserToFirestore(user) {
-    try {
-        const docRef = await usersCollection.add(user);
-        user.id = docRef.id;
-        userData.push(user);
-        displayedUsers = [...userData];
-        renderUserCards();
-        updateStats();
-        addNotification('User Added', `${user.name} added successfully`);
-    } catch (error) {
-        console.error('Error adding user:', error);
-        alert('Failed to add user');
-    }
+window.addAPI = function addAPI() {
+    let popup = document.getElementById("popup")
+    popup.style.display = "flex"
 }
 
-// Update User in Firestore
-async function updateUserInFirestore(userId, updatedUser) {
-    try {
-        await usersCollection.doc(userId).update(updatedUser);
-        userData = userData.map(user => user.id === userId ? {...user, ...updatedUser } : user);
-        displayedUsers = [...userData];
-        renderUserCards();
-        updateStats();
-        addNotification('User Updated', `${updatedUser.name} updated successfully`);
-    } catch (error) {
-        console.error('Error updating user:', error);
-        alert('Failed to update user');
-    }
+window.cancel = function cancel() {
+    let popup = document.getElementById("popup")
+    popup.style.display = "none"
 }
 
-// Delete User from Firestore
-async function deleteUserFromFirestore(userId) {
-    try {
-        await usersCollection.doc(userId).delete();
-        userData = userData.filter(user => user.id !== userId);
-        displayedUsers = [...userData];
-        renderUserCards();
-        updateStats();
-        addNotification('User Deleted', 'User removed successfully');
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        alert('Failed to delete user');
-    }
+// Add new functions for documentation and integration popups
+window.showDocPopup = function(apiId) {
+    const docPopup = document.getElementById("docPopup");
+    docPopup.style.display = "flex";
+    // Store current API ID for later use
+    docPopup.dataset.apiId = apiId;
 }
 
-// Authentication Functions
-window.signin = function signin() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+window.showIntegrationPopup = function(apiId) {
+    const integrationPopup = document.getElementById("integrationPopup");
+    integrationPopup.style.display = "flex";
+    // Store current API ID for later use
+    integrationPopup.dataset.apiId = apiId;
+}
 
-    if (email === "" || password === "") {
-        alert("Please fill in the required fields");
+window.closeDocPopup = function() {
+    const docPopup = document.getElementById("docPopup");
+    docPopup.style.display = "none";
+}
+
+window.closeIntegrationPopup = function() {
+    const integrationPopup = document.getElementById("integrationPopup");
+    integrationPopup.style.display = "none";
+}
+
+// Modified addData function to handle all data in one go
+window.addData = async function addData() {
+    // Basic API Information
+    const name = document.getElementById('apiName').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const language = document.getElementById('language').value.trim();
+    const category = document.getElementById('category').value;
+    const security = document.getElementById('security').value.trim();
+    const license = document.getElementById('license').value.trim();
+
+    // Documentation Information
+    const docTitle = document.getElementById('docTitle').value.trim();
+    const docDescription = document.getElementById('docDescription').value.trim();
+    const endpoints = document.getElementById('endpoints').value.trim();
+    const parameters = document.getElementById('parameters').value.trim();
+    const docExamples = document.getElementById('examples').value.trim();
+
+    // Integration Information
+    const integrationTitle = document.getElementById('integrationTitle').value.trim();
+    const integrationDescription = document.getElementById('integrationDescription').value.trim();
+    const setupSteps = document.getElementById('setupSteps').value.trim();
+    const codeExamples = document.getElementById('codeExamples').value.trim();
+
+    // Required fields check
+    if (!name || !description || !language || !category || !security || !license ||
+        !docTitle || !docDescription || !endpoints || !parameters || !docExamples ||
+        !integrationTitle || !integrationDescription || !setupSteps || !codeExamples) {
+        alert("Please fill in all required fields.");
         return;
     }
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            if (user.email === "admin@gmail.com") {
-                window.location.href = "dashboard.html";
-            } else {
-                window.location.href = "home.html";
-            }
-        })
-        .catch((error) => {
-            alert("Login Failed: " + error.message);
-            console.error(error);
-        });
-};
+    const apiData = {
+        // Basic API Information
+        name,
+        description,
+        language: language.split(',').map(lang => lang.trim()),
+        category,
+        security,
+        license,
+        createdAt: new Date(),
 
-window.googleSignIn = function googleSignIn() {
-    const provider = new GoogleAuthProvider();
+        // Documentation Information
+        documentation: {
+            title: docTitle,
+            description: docDescription,
+            endpoints,
+            parameters,
+            examples: docExamples,
+            createdAt: new Date()
+        },
 
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            const user = result.user;
-            if (user.email === "admin@gmail.com") {
-                window.location.href = "dashboard.html";
-            } else {
-                window.location.href = "home.html";
-            }
-        })
-        .catch((error) => {
-            alert("Google Sign in Failed: " + error.message);
-        });
-};
+        // Integration Information
+        integration: {
+            title: integrationTitle,
+            description: integrationDescription,
+            setupSteps,
+            codeExamples,
+            createdAt: new Date()
+        }
+    };
 
-window.forget = function forget() {
-    const email = document.getElementById("email").value;
-
-    if (email === "") {
-        alert("Please enter your email address.");
-    } else {
-        sendPasswordResetEmail(auth, email)
-            .then(() => {
-                alert("Password reset email sent! Please check your inbox.");
-                window.location.href = "index.html";
-            })
-            .catch((error) => {
-                alert(error.message);
-            });
+    try {
+        const docRef = await addDoc(collection(db, "apis"), apiData);
+        alert("API successfully added!");
+        document.getElementById("popup").style.display = "none";
+        fetchData(); // Refresh the API cards without page reload
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        alert("Failed to add API.");
     }
 };
 
-window.passwordShow = function passwordShow() {
-    const password = document.getElementById("password");
-    const passwordtogel = document.getElementById("togglePassword");
-    if (password.type === "password") {
-        password.type = "text";
-        passwordtogel.classList.replace("fa-eye", "fa-eye-slash");
-    } else {
-        password.type = "password";
-        passwordtogel.classList.replace("fa-eye-slash", "fa-eye");
-    }
-};
+// Modified fetchData function to add delete button
+async function fetchData() {
+    const apisCollection = collection(db, "apis");
+    const querySnapshot = await getDocs(apisCollection);
+    const container = document.getElementById("apiCardContainer");
+    const countDiv = document.getElementById("apiCountDiv"); // <-- Count div
 
-// Dummy API Data
-const apiData = [{
-        name: "OpenWeatherMap",
-        description: "Real-time weather data.",
-        trustScore: 8.5,
-        languages: ["JavaScript", "Python", "Java"],
-        category: "Weather",
-        rating: 4.2,
-        securityAlert: "No known vulnerabilities",
-        license: "MIT"
-    },
-    {
-        name: "NewsAPI",
-        description: "Live news articles.",
-        trustScore: 7.8,
-        languages: ["Python", "JavaScript"],
-        category: "News",
-        rating: 3.8,
-        securityAlert: "Minor rate limit issues",
-        license: "Apache 2.0"
-    }
-];
+    container.innerHTML = ""; // Clear the container
 
-// Firestore User Management
-let userData = [];
+    // Show total count
+    countDiv.innerText = ` ${querySnapshot.size}`;
 
-async function fetchUsers() {
-    try {
-        const usersCollection = collection(db, "users");
-        const userSnapshot = await getDocs(usersCollection);
-        userData = userSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        renderUserCards();
-        updateStats();
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        // Fallback to dummy data
-        userData = [
-            { id: '1', name: "Ali Khan", email: "ali@example.com", role: "User", status: "Active" },
-            { id: '2', name: "Sara Ahmed", email: "sara@example.com", role: "User", status: "Inactive" }
-        ];
-        renderUserCards();
-    }
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const apiCard = document.createElement("div");
+        apiCard.className = "apiCard";
+        apiCard.setAttribute('data-api-id', doc.id);
+        apiCard.innerHTML = `
+            <div class="cardHeader">
+                <h2>${data.name}</h2>
+                <i class="fa fa-trash delete-icon" onclick="deleteAPI('${doc.id}', '${data.name}')" title="Delete API"></i>
+            </div>
+            <p>${data.description}</p>
+            <p><b>Languages: </b>${data.language.join(', ')}</p>
+            <p><b>Security: </b>${data.security}</p>
+            <p><b>License: </b>${data.license}</p>
+            <div class="veiwBtn">
+                <button onclick="viewDocumentation('${doc.id}')" class="edit-btn">View Doc</button>
+                <button onclick="viewIntegration('${doc.id}')" class="edit-btn integrate-btn">Integration</button>
+            </div>
+        `;
+        container.appendChild(apiCard);
+    });
 }
 
-async function addUser(user) {
-    try {
-        const usersCollection = collection(db, "users");
-        const docRef = await addDoc(usersCollection, user);
-        userData.push({ id: docRef.id, ...user });
-        renderUserCards();
-        updateStats();
-        addNotification('User Added', `${user.name} added successfully`);
-    } catch (error) {
-        console.error('Error adding user:', error);
-        alert('Failed to add user');
-    }
-}
 
-async function updateUser(userId, updatedUser) {
+// Function to view documentation
+window.viewDocumentation = async function(apiId) {
     try {
-        const userDoc = doc(db, "users", userId);
-        await updateDoc(userDoc, updatedUser);
-        userData = userData.map(u => u.id === userId ? { id: userId, ...updatedUser } : u);
-        renderUserCards();
-        updateStats();
-        addNotification('User Updated', `${updatedUser.name} updated successfully`);
-    } catch (error) {
-        console.error('Error updating user:', error);
-        alert('Failed to update user');
-    }
-}
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
 
-async function deleteUser(userId) {
-    try {
-        const userDoc = doc(db, "users", userId);
-        const user = userData.find(u => u.id === userId);
-        await deleteDoc(userDoc);
-        userData = userData.filter(u => u.id !== userId);
-        renderUserCards();
-        updateStats();
-        addNotification('User Deleted', `${user.name} deleted`);
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        alert('Failed to delete user');
-    }
-}
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const docData = data.documentation;
 
-// Dashboard State
-let displayedAPIs = [...apiData];
-let displayedUsers = [...userData];
-let notifications = [];
-let unreadCount = 0;
+            // Show the popup
+            const docPopup = document.getElementById("docPopup");
+            docPopup.style.display = "flex";
 
-// Authentication Check
-auth.onAuthStateChanged(user => {
-    try {
-        if (user && user.email === "admin@gmail.com") {
-            document.getElementById('userName').textContent = user.displayName || "Admin";
-            document.getElementById('userEmail').textContent = user.email;
-            initializeDashboard();
+            // Update popup content with improved layout and edit buttons
+            document.getElementById("addDoc").innerHTML = `
+                <div class="addApiName">
+                    <h1>${docData.title}</h1>
+                    <i class="fa fa-xmark" onclick="closeDocPopup()"></i>
+                </div>
+                <div class="addApiInput">
+                    <div class="content-block">
+                        <div class="block-header">
+                            <h3>Description</h3>
+                            <button class="edit-toggle-btn small" onclick="toggleEditField('description', '${apiId}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="content" id="description-content-${apiId}">${docData.description}</div>
+                        <div class="edit-field" id="description-edit-${apiId}" style="display: none;">
+                            <textarea id="description-input-${apiId}" class="edit-input">${docData.description}</textarea>
+                            <button class="update-btn" onclick="updateDocField('${apiId}', 'description')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Endpoints</span>
+                        <button class="edit-toggle-btn small" onclick="toggleEditField('endpoints', '${apiId}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="endpoints-content-${apiId}">${docData.endpoints}</pre>
+                        <div class="edit-field" id="endpoints-edit-${apiId}" style="display: none;">
+                            <textarea id="endpoints-input-${apiId}" class="edit-input">${docData.endpoints}</textarea>
+                            <button class="update-btn" onclick="updateDocField('${apiId}', 'endpoints')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Parameters</span>
+                        <button class="edit-toggle-btn small" onclick="toggleEditField('parameters', '${apiId}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="parameters-content-${apiId}">${docData.parameters}</pre>
+                        <div class="edit-field" id="parameters-edit-${apiId}" style="display: none;">
+                            <textarea id="parameters-input-${apiId}" class="edit-input">${docData.parameters}</textarea>
+                            <button class="update-btn" onclick="updateDocField('${apiId}', 'parameters')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Examples</span>
+                        <button class="edit-toggle-btn small" onclick="toggleEditField('examples', '${apiId}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="examples-content-${apiId}">${docData.examples}</pre>
+                        <div class="edit-field" id="examples-edit-${apiId}" style="display: none;">
+                            <textarea id="examples-input-${apiId}" class="edit-input">${docData.examples}</textarea>
+                            <button class="update-btn" onclick="updateDocField('${apiId}', 'examples')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
         } else {
-            console.warn('No admin user logged in');
-            alert('Please log in as admin');
-            window.location.href = "index.html";
+            alert("Documentation not found!");
         }
     } catch (error) {
-        console.error('Auth state change error:', error);
+        console.error("Error loading documentation: ", error);
+        alert("Error loading documentation");
     }
+};
+
+// Function to toggle edit fields
+window.toggleEditField = function(fieldName, apiId) {
+    const contentElement = document.getElementById(`${fieldName}-content-${apiId}`);
+    const editElement = document.getElementById(`${fieldName}-edit-${apiId}`);
+
+    if (editElement.style.display === 'none') {
+        contentElement.style.display = 'none';
+        editElement.style.display = 'block';
+    } else {
+        contentElement.style.display = 'block';
+        editElement.style.display = 'none';
+    }
+};
+
+// Function to update documentation field
+window.updateDocField = async function(apiId, fieldName) {
+    try {
+        const inputValue = document.getElementById(`${fieldName}-input-${apiId}`).value;
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const updatedDocumentation = {
+                ...data.documentation,
+                [fieldName]: inputValue
+            };
+
+            await setDoc(docRef, {
+                ...data,
+                documentation: updatedDocumentation
+            });
+
+            // Update the displayed content
+            document.getElementById(`${fieldName}-content-${apiId}`).innerHTML = inputValue;
+            toggleEditField(fieldName, apiId);
+
+            showNotification(`Documentation ${fieldName} updated successfully`, "update");
+        }
+    } catch (error) {
+        console.error("Error updating documentation: ", error);
+        alert("Failed to update documentation");
+    }
+};
+
+// Function to view integration
+window.viewIntegration = async function(apiId) {
+    try {
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const integrationData = data.integration;
+
+            // Show the popup
+            const integrationPopup = document.getElementById("integrationPopup");
+            integrationPopup.style.display = "flex";
+
+            // Update popup content with improved layout and edit buttons
+            document.getElementById("addIntegration").innerHTML = `
+                <div class="addApiName">
+                    <h1>${integrationData.title}</h1>
+                    <i class="fa fa-xmark" onclick="closeIntegrationPopup()"></i>
+                </div>
+                <div class="addApiInput">
+                    <div class="content-block">
+                        <div class="block-header">
+                            <h3>Description</h3>
+                            <button class="edit-toggle-btn small" onclick="toggleEditField('integration-description', '${apiId}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="content" id="integration-description-content-${apiId}">${integrationData.description}</div>
+                        <div class="edit-field" id="integration-description-edit-${apiId}" style="display: none;">
+                            <textarea id="integration-description-input-${apiId}" class="edit-input">${integrationData.description}</textarea>
+                            <button class="update-btn" onclick="updateIntegrationField('${apiId}', 'description')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Setup Steps</span>
+                        <button class="edit-toggle-btn small" onclick="toggleEditField('integration-setup', '${apiId}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="integration-setup-content-${apiId}">${integrationData.setupSteps}</pre>
+                        <div class="edit-field" id="integration-setup-edit-${apiId}" style="display: none;">
+                            <textarea id="integration-setup-input-${apiId}" class="edit-input">${integrationData.setupSteps}</textarea>
+                            <button class="update-btn" onclick="updateIntegrationField('${apiId}', 'setupSteps')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Code Examples</span>
+                        <button class="edit-toggle-btn small" onclick="toggleEditField('integration-code', '${apiId}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="integration-code-content-${apiId}">${integrationData.codeExamples}</pre>
+                        <div class="edit-field" id="integration-code-edit-${apiId}" style="display: none;">
+                            <textarea id="integration-code-input-${apiId}" class="edit-input">${integrationData.codeExamples}</textarea>
+                            <button class="update-btn" onclick="updateIntegrationField('${apiId}', 'codeExamples')">
+                                <i class="fas fa-save"></i> Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            alert("Integration data not found!");
+        }
+    } catch (error) {
+        console.error("Error loading integration: ", error);
+        alert("Error loading integration data");
+    }
+};
+
+// Function to update integration field
+window.updateIntegrationField = async function(apiId, fieldName) {
+    try {
+        const inputValue = document.getElementById(`integration-${fieldName === 'setupSteps' ? 'setup' : fieldName === 'codeExamples' ? 'code' : fieldName}-input-${apiId}`).value;
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const updatedIntegration = {
+                ...data.integration,
+                [fieldName]: inputValue
+            };
+
+            await setDoc(docRef, {
+                ...data,
+                integration: updatedIntegration
+            });
+
+            // Update the displayed content
+            document.getElementById(`integration-${fieldName === 'setupSteps' ? 'setup' : fieldName === 'codeExamples' ? 'code' : fieldName}-content-${apiId}`).innerHTML = inputValue;
+            toggleEditField(`integration-${fieldName === 'setupSteps' ? 'setup' : fieldName === 'codeExamples' ? 'code' : fieldName}`, apiId);
+
+            showNotification(`Integration ${fieldName} updated successfully`, "update");
+        }
+    } catch (error) {
+        console.error("Error updating integration: ", error);
+        alert("Failed to update integration");
+    }
+};
+
+// Toggle edit form visibility
+window.toggleEditForm = function(fieldId, apiId) {
+    const form = document.getElementById(`edit-${fieldId}-${apiId}`);
+    form.classList.toggle('show');
+};
+
+// Update documentation
+window.updateDocumentation = async function(apiId, field) {
+    try {
+        const inputValue = document.getElementById(`${field}-input-${apiId}`).value;
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const updatedData = {
+                ...data,
+                documentation: {
+                    ...data.documentation,
+                    [field]: inputValue
+                }
+            };
+
+            await setDoc(docRef, updatedData);
+            alert(`${field} updated successfully!`);
+            viewDocumentation(apiId); // Refresh the view
+        }
+    } catch (error) {
+        console.error("Error updating documentation: ", error);
+        alert("Failed to update documentation");
+    }
+};
+
+// Update integration
+window.updateIntegration = async function(apiId, field) {
+    try {
+        const inputValue = document.getElementById(`${field}-input-${apiId}`).value;
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const updatedData = {
+                ...data,
+                integration: {
+                    ...data.integration,
+                    [field]: inputValue
+                }
+            };
+
+            await setDoc(docRef, updatedData);
+            alert(`${field} updated successfully!`);
+            viewIntegration(apiId); // Refresh the view
+        }
+    } catch (error) {
+        console.error("Error updating integration: ", error);
+        alert("Failed to update integration");
+    }
+};
+async function fetchuserData() {
+    const apisCollection = collection(db, "users");
+    let userCount = document.getElementById("userCount");
+    const querySnapshot = await getDocs(apisCollection);
+    const container = document.getElementById("userContainer");
+
+    console.log("Total Users:", querySnapshot.size); // Debug
+
+    userCount.innerText = ` ${querySnapshot.size}`;
+    container.innerHTML = "";
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        console.log("User Data:", data); // Debug
+
+        const apiCard = document.createElement("div");
+        apiCard.className = "apiCard";
+        apiCard.innerHTML = `
+            <div><b>User Name:</b> ${data.userName}</div>
+            <div><b>Email:</b> ${data.email}</div>
+            <p><b>Role:</b> User</p>
+            <div class="veiwBtn">
+                <button onclick="deleteUserFromFirestore('${doc.id}')" class="delete-btn">Delete User</button>
+            </div>
+        `;
+        container.appendChild(apiCard);
+    });
+}
+
+
+
+
+window.deleteUserFromFirestore = async function deleteUserFromFirestore(uid) {
+    try {
+        const userDocRef = doc(db, "users", uid); // assuming "users" collection
+        await deleteDoc(userDocRef);
+        console.log("User data deleted from Firestore.");
+        location.reload()
+        showNotification("User has been deleted successfully", "delete");
+        return true;
+    } catch (error) {
+        console.error("Error deleting user data from Firestore:", error);
+        return false;
+    }
+}
+
+// Function to show API management section
+window.apiManagment = function apiManagment() {
+    document.getElementById('overview').style.display = 'none';
+
+    document.getElementById('apiManagment').style.display = 'block';
+    document.getElementById('userManagment').style.display = 'none';
+    document.getElementById('analytics').style.display = 'none';
+
+
+}
+
+// Function to show user management section
+
+// Add delete API function with confirmation including API name
+window.deleteAPI = async function(apiId, apiName) {
+    if (confirm(`Are you sure you want to delete the API "${apiName}"?`)) {
+        try {
+            const apiRef = doc(db, "apis", apiId);
+            await deleteDoc(apiRef);
+
+            // Find and remove the specific card from DOM
+            const cardToRemove = document.querySelector(`.apiCard[data-api-id="${apiId}"]`);
+            if (cardToRemove) {
+                cardToRemove.remove();
+            }
+
+            alert("API deleted successfully!");
+            showNotification("API has been deleted successfully", "delete");
+            return true;
+        } catch (error) {
+            console.error("Error deleting API: ", error);
+            alert("Failed to delete API.");
+            return false;
+        }
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize data fetching
+    fetchData();
+    fetchuserData();
+
+    // Bar Chart: Top APIs by Usage
+    const ctxTopApis = document.getElementById('topApisChart').getContext('2d');
+    new Chart(ctxTopApis, {
+        type: 'bar',
+        data: {
+            labels: ['OpenWeatherMap', 'NewsAPI'],
+            datasets: [{
+                label: 'Usage',
+                data: [300, 194.44],
+                backgroundColor: '#60a5fa',
+                borderColor: '#60a5fa',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff'
+                    }
+                },
+                tooltip: {
+                    titleColor: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff',
+                    bodyColor: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff',
+                    backgroundColor: document.body.classList.contains('light-theme') ? '#ffffff' : '#1e293b',
+                    borderColor: document.body.classList.contains('light-theme') ? '#e2e8f0' : '#334155'
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff'
+                    },
+                    grid: {
+                        color: document.body.classList.contains('light-theme') ? '#e2e8f0' : '#334155'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 300,
+                    ticks: {
+                        color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff'
+                    },
+                    grid: {
+                        color: document.body.classList.contains('light-theme') ? '#e2e8f0' : '#334155'
+                    }
+                }
+            }
+        }
+    });
+
+    // Donut Chart: User Activity
+    const ctxUserActivity = document.getElementById('userActivityChart').getContext('2d');
+    new Chart(ctxUserActivity, {
+        type: 'doughnut',
+        data: {
+            labels: ['Active', 'Inactive'],
+            datasets: [{
+                label: 'User Activity',
+                data: [70, 50],
+                backgroundColor: ['#60a5fa', '#f87171'],
+                borderColor: ['#60a5fa', '#f87171'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    titleColor: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff',
+                    bodyColor: document.body.classList.contains('light-theme') ? '#000000' : '#ffffff',
+                    backgroundColor: document.body.classList.contains('light-theme') ? '#ffffff' : '#1e293b',
+                    borderColor: document.body.classList.contains('light-theme') ? '#e2e8f0' : '#334155'
+                }
+            }
+        }
+    });
 });
 
-// Initialize Dashboard
-function initializeDashboard() {
-    try {
-        loadAPIData();
-        loadUserData();
-        initializeCharts();
-        addNotification("Welcome", "Welcome to the APIverse Admin Dashboard!");
-        updateUserDropdown();
-    } catch (error) {
-        console.error('Dashboard initialization failed:', error);
-    }
+
+
+function randomCall() {
+    let randomApi = Math.floor(Math.random() * 100);
+    document.getElementById("apiCall").innerHTML = `${randomApi}`
+
+
+    let randomSecurity = Math.floor(Math.random() * 100);
+    document.getElementById("apiSecurity").innerHTML = `${randomSecurity}`
 }
 
-// Update Stats
-function updateStats() {
-    try {
-        document.getElementById('totalApis').textContent = apiData.length;
-        document.getElementById('activeUsers').textContent = userData.filter(u => u.status === "Active").length;
-        document.getElementById('apiCalls').textContent = Math.floor(Math.random() * 2000);
-        document.getElementById('securityAlerts').textContent = Math.floor(Math.random() * 5);
-    } catch (error) {
-        console.error('Update stats failed:', error);
-    }
+randomCall()
+
+// Notification System Functions
+window.toggleNotifications = function() {
+    const container = document.getElementById('notificationContainer');
+    container.style.display = container.style.display === 'block' ? 'none' : 'block';
 }
 
-// Render API Cards
-function renderAPICards() {
-    try {
-        const apiGrid = document.getElementById('apiGrid');
-        apiGrid.innerHTML = displayedAPIs.length ? '' : '<p>No APIs found</p>';
-        displayedAPIs.forEach(api => {
-            apiGrid.innerHTML += `
-                <div class="api-card">
-                    <h3>${api.name}</h3>
-                    <p>${api.description}</p>
-                    <p>Languages: ${api.languages.join(', ')}</p>
-                    <p>Category: ${api.category}</p>
-                    <div class="buttons">
-                        <button onclick="editAPI('${api.id}')">Edit</button>
-                        <button class="delete-btn" onclick="deleteAPI('${api.id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
-    } catch (error) {
-        console.error('Render API cards failed:', error);
-    }
-}
-
-// Render User Cards
-function renderUserCards() {
-    try {
-        const userGrid = document.getElementById('userGrid');
-        userGrid.innerHTML = displayedUsers.length ? '' : '<p>No users found</p>';
-        displayedUsers = [...userData]; // Update displayed users
-        displayedUsers.forEach(user => {
-            userGrid.innerHTML += `
-                <div class="user-card">
-                    <h3>${user.name}</h3>
-                    <p>Email: ${user.email}</p>
-                    <p>Role: ${user.role}</p>
-                    <p>Status: ${user.status}</p>
-                    <div class="buttons">
-                        <button onclick="editUser('${user.id}')">Edit</button>
-                        <button class="delete-btn" onclick="deleteUser('${user.id}')">Delete</button>
-                    </div>
-                </div>
-            `;
-        });
-    } catch (error) {
-        console.error('Render user cards failed:', error);
-    }
-}
-
-// Filter Dashboard
-function filterDashboard() {
-    try {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const suggestions = document.getElementById('suggestions');
-        displayedAPIs = apiData.filter(api =>
-            api.name.toLowerCase().includes(search) ||
-            api.description.toLowerCase().includes(search)
-        );
-        displayedUsers = userData.filter(user =>
-            user.name.toLowerCase().includes(search) ||
-            user.email.toLowerCase().includes(search)
-        );
-
-        suggestions.innerHTML = '';
-        if (search) {
-            const combined = [
-                ...displayedAPIs.map(api => ({ type: 'API', name: api.name })),
-                ...displayedUsers.map(user => ({ type: 'User', name: user.name }))
-            ].slice(0, 5);
-            combined.forEach(item => {
-                const div = document.createElement('div');
-                div.textContent = `${item.type}: ${item.name}`;
-                div.onclick = () => {
-                    document.getElementById('searchInput').value = item.name;
-                    filterDashboard();
-                };
-                suggestions.appendChild(div);
-            });
-            suggestions.classList.add('active');
-        } else {
-            suggestions.classList.remove('active');
-        }
-
-        renderAPICards();
-        renderUserCards();
-    } catch (error) {
-        console.error('Filter dashboard failed:', error);
-    }
-}
-
-// Show Section
-function showSection(sectionId) {
-    try {
-        document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
-        document.getElementById('sidebar').classList.remove('active');
-    } catch (error) {
-        console.error('Show section failed:', error);
-    }
-}
-
-// Toggle Sidebar
-function toggleSidebar() {
-    try {
-        document.getElementById('sidebar').classList.toggle('active');
-    } catch (error) {
-        console.error('Toggle sidebar failed:', error);
-    }
-}
-
-// Toggle Theme
-function toggleTheme() {
-    try {
-        document.body.classList.toggle('light');
-        const icon = document.querySelector('.theme-toggle i');
-        icon.classList.toggle('fa-moon');
-        icon.classList.toggle('fa-sun');
-    } catch (error) {
-        console.error('Toggle theme failed:', error);
-    }
-}
-
-// Toggle User Dropdown
-function toggleUserDropdown() {
-    try {
-        document.getElementById('userDropdown').classList.toggle('active');
-    } catch (error) {
-        console.error('Toggle user dropdown failed:', error);
-    }
-}
-
-// Update User Dropdown
-function updateUserDropdown() {
-    try {
-        const userName = document.getElementById('userName');
-        const userEmail = document.getElementById('userEmail');
-        const userAction = document.getElementById('userAction');
-        const userSettings = document.getElementById('userSettings');
-        const userHelp = document.getElementById('userHelp');
-
-        const user = auth.currentUser;
-        if (user) {
-            userName.textContent = `Name: ${user.displayName || 'Admin'}`;
-            userEmail.textContent = `Email: ${user.email}`;
-            userAction.textContent = 'Logout';
-            userAction.onclick = window.logout;
-            userSettings.onclick = () => alert('Settings page coming soon!');
-            userHelp.onclick = () => alert('Help & Support page coming soon!');
-        } else {
-            userName.textContent = 'Not logged in';
-            userEmail.textContent = 'Please login to view your profile';
-            userAction.textContent = 'Login';
-            userAction.onclick = () => window.location.href = "index.html";
-            userSettings.style.display = 'none';
-            userHelp.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Update user dropdown failed:', error);
-    }
-}
-
-// Notifications
-function toggleNotificationDropdown() {
-    try {
-        document.getElementById('notificationDropdown').classList.toggle('active');
-    } catch (error) {
-        console.error('Toggle notification dropdown failed:', error);
-    }
-}
-
-function addNotification(title, message) {
-    try {
-        notifications.unshift({
-            id: Date.now(),
-            title,
-            message,
-            time: new Date(),
-            read: false
-        });
-        unreadCount++;
-        renderNotifications();
-        updateNotificationBadge();
-    } catch (error) {
-        console.error('Add notification failed:', error);
-    }
-}
-
-function renderNotifications() {
-    try {
-        const list = document.getElementById('notificationList');
-        list.innerHTML = notifications.length ? '' : '<div class="notification-item">No notifications</div>';
-        notifications.forEach(n => {
-            list.innerHTML += `
-                <div class="notification-item ${n.read ? '' : 'unread'}" onclick="markAsRead(${n.id})">
-                    <div class="notification-title">${n.title}</div>
-                    <div class="notification-message">${n.message}</div>
-                    <div class="notification-time">${formatTime(n.time)}</div>
-                </div>
-            `;
-        });
-    } catch (error) {
-        console.error('Render notifications failed:', error);
-    }
-}
-
-function markAsRead(id) {
-    try {
-        const notification = notifications.find(n => n.id === id);
-        if (notification && !notification.read) {
-            notification.read = true;
-            unreadCount--;
-            renderNotifications();
-            updateNotificationBadge();
-        }
-    } catch (error) {
-        console.error('Mark as read failed:', error);
-    }
-}
-
-function markAllAsRead() {
-    try {
-        notifications.forEach(n => n.read = true);
-        unreadCount = 0;
-        renderNotifications();
-        updateNotificationBadge();
-    } catch (error) {
-        console.error('Mark all as read failed:', error);
-    }
-}
-
+// Function to update notification badge
 function updateNotificationBadge() {
-    try {
-        const badge = document.getElementById('notificationBadge');
-        badge.textContent = unreadCount;
-        badge.style.display = unreadCount ? 'block' : 'none';
-    } catch (error) {
-        console.error('Update notification badge failed:', error);
+    const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    const bellIcon = document.querySelector('.fa-bell');
+
+    if (notifications.length > 0) {
+        bellIcon.setAttribute('data-count', notifications.length);
+        bellIcon.style.setProperty('--notification-display', 'block');
+    } else {
+        bellIcon.setAttribute('data-count', '0');
+        bellIcon.style.setProperty('--notification-display', 'none');
     }
 }
 
-function formatTime(date) {
-    try {
-        const diff = (new Date() - date) / 60000;
-        if (diff < 1) return 'Just now';
-        if (diff < 60) return `${Math.floor(diff)}m ago`;
-        return `${Math.floor(diff / 60)}h ago`;
-    } catch (error) {
-        console.error('Format time failed:', error);
-        return '';
-    }
+// Function to show notification
+window.showNotification = function(message, type) {
+    // Get existing notifications from localStorage
+    let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+
+    // Add new notification
+    const notification = {
+        id: Date.now(),
+        message: message,
+        type: type,
+        timestamp: new Date().toLocaleString()
+    };
+
+    notifications.unshift(notification);
+
+    // Save to localStorage
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+
+    // Update UI
+    updateNotificationUI();
+
+    // Update notification badge
+    updateNotificationBadge();
 }
 
-// Modal
-function openAddAPIModal() {
-    try {
-        document.getElementById('addAPIModal').style.display = 'flex';
-    } catch (error) {
-        console.error('Open add API modal failed:', error);
-    }
+// Function to update notification UI
+function updateNotificationUI() {
+    const notificationList = document.getElementById('notificationList');
+    const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+
+    notificationList.innerHTML = '';
+
+    notifications.forEach(notification => {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = `notification-item ${notification.type}`;
+        notificationElement.innerHTML = `
+            <div class="notification-content">
+                <p>${notification.message}</p>
+                <small>${notification.timestamp}</small>
+            </div>
+            <button onclick="removeNotification(${notification.id})" title="Remove notification">×</button>
+        `;
+        notificationList.appendChild(notificationElement);
+    });
+
+    // Update badge after UI update
+    updateNotificationBadge();
 }
 
-function closeAddAPIModal() {
-    try {
-        document.getElementById('addAPIModal').style.display = 'none';
-        document.getElementById('addAPIForm').reset();
-    } catch (error) {
-        console.error('Close add API modal failed:', error);
-    }
+// Function to remove notification
+window.removeNotification = function(id) {
+    let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    notifications = notifications.filter(n => n.id !== id);
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+    updateNotificationUI();
+    updateNotificationBadge();
 }
 
-function openAddUserModal() {
-    try {
-        document.getElementById('addUserModal').style.display = 'flex';
-    } catch (error) {
-        console.error('Open add user modal failed:', error);
-    }
+// Function to clear all notifications
+window.clearNotifications = function() {
+    localStorage.removeItem('notifications');
+    updateNotificationUI();
+    updateNotificationBadge();
 }
 
-function closeAddUserModal() {
-    try {
-        document.getElementById('addUserModal').style.display = 'none';
-        document.getElementById('addUserForm').reset();
-    } catch (error) {
-        console.error('Close add user modal failed:', error);
-    }
-}
-
-function openEditUserModal(userId) {
-    try {
-        const user = userData.find(u => u.id === userId);
-        if (user) {
-            document.getElementById('editUserId').value = user.id;
-            document.getElementById('editUserName').value = user.name;
-            document.getElementById('editUserEmail').value = user.email;
-            document.getElementById('editUserRole').value = user.role;
-            document.getElementById('editUserStatus').value = user.status;
-            document.getElementById('editUserModal').style.display = 'flex';
-        }
-    } catch (error) {
-        console.error('Open edit user modal failed:', error);
-    }
-}
-
-function closeEditUserModal() {
-    try {
-        document.getElementById('editUserModal').style.display = 'none';
-        document.getElementById('editUserForm').reset();
-    } catch (error) {
-        console.error('Close edit user modal failed:', error);
-    }
-}
-
-// Add API
-document.getElementById('addAPIForm').addEventListener('submit', async e => {
-    try {
-        e.preventDefault();
-        const newAPI = {
-            name: document.getElementById('apiName').value,
-            description: document.getElementById('apiDescription').value,
-            languages: document.getElementById('apiLanguages').value.split(',').map(l => l.trim()),
-            category: document.getElementById('apiCategory').value,
-            trustScore: parseFloat(document.getElementById('apiTrustScore').value)
-        };
-        await addAPIToFirestore(newAPI);
-        closeAddAPIModal();
-    } catch (error) {
-        console.error('Add API failed:', error);
-    }
-});
-
-// Add User
-document.getElementById('addUserForm').addEventListener('submit', async e => {
-    try {
-        e.preventDefault();
-        const newUser = {
-            name: document.getElementById('userName').value,
-            email: document.getElementById('userEmail').value,
-            role: document.getElementById('userRole').value,
-            status: document.getElementById('userStatus').value
-        };
-        await addUserToFirestore(newUser);
-        closeAddUserModal();
-    } catch (error) {
-        console.error('Add user failed:', error);
-    }
-});
-
-// Edit User
-document.getElementById('editUserForm').addEventListener('submit', async e => {
-    try {
-        e.preventDefault();
-        const userId = document.getElementById('editUserId').value;
-        const updatedUser = {
-            name: document.getElementById('editUserName').value,
-            email: document.getElementById('editUserEmail').value,
-            role: document.getElementById('editUserRole').value,
-            status: document.getElementById('editUserStatus').value
-        };
-        await updateUserInFirestore(userId, updatedUser);
-        closeEditUserModal();
-    } catch (error) {
-        console.error('Edit user failed:', error);
-    }
-});
-
-// Edit/Delete APIs
-function editAPI(apiId) {
-    try {
-        const api = apiData.find(a => a.id === apiId);
-        if (api) {
-            document.getElementById('editAPIId').value = api.id;
-            document.getElementById('editAPIName').value = api.name;
-            document.getElementById('editAPIDescription').value = api.description;
-            document.getElementById('editAPILanguages').value = api.languages.join(', ');
-            document.getElementById('editAPICategory').value = api.category;
-            document.getElementById('editAPITrustScore').value = api.trustScore;
-            document.getElementById('editAPIModal').style.display = 'flex';
-        }
-    } catch (error) {
-        console.error('Edit API failed:', error);
-    }
-}
-
-function deleteAPI(apiId) {
-    try {
-        if (confirm('Are you sure you want to delete this API?')) {
-            deleteAPIFromFirestore(apiId);
-        }
-    } catch (error) {
-        console.error('Delete API failed:', error);
-    }
-}
-
-// Edit/Delete Users
-window.editUser = function(userId) {
-    try {
-        const user = userData.find(u => u.id === userId);
-        if (user) {
-            document.getElementById('editUserId').value = user.id;
-            document.getElementById('editUserName').value = user.name;
-            document.getElementById('editUserEmail').value = user.email;
-            document.getElementById('editUserRole').value = user.role;
-            document.getElementById('editUserStatus').value = user.status;
-            document.getElementById('editUserModal').style.display = 'flex';
-        }
-    } catch (error) {
-        console.error('Edit user failed:', error);
-    }
-};
-
-window.deleteUser = function(userId) {
-    try {
-        if (confirm('Are you sure you want to delete this user?')) {
-            deleteUserFromFirestore(userId);
-        }
-    } catch (error) {
-        console.error('Delete user failed:', error);
-    }
-};
-
-// Charts
-function initializeCharts() {
-    try {
-        if (!window.Chart) {
-            console.error('Chart.js not loaded');
-            return;
-        }
-
-        new Chart(document.getElementById('usageChart'), {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'API Calls',
-                    data: [500, 700, 600, 800, 900, 1000],
-                    borderColor: '#60a5fa',
-                    fill: false
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-
-        new Chart(document.getElementById('topApisChart'), {
-            type: 'bar',
-            data: {
-                labels: apiData.map(api => api.name).slice(0, 5),
-                datasets: [{
-                    label: 'Usage',
-                    data: apiData.map(() => Math.random() * 1000).slice(0, 5),
-                    backgroundColor: '#60a5fa'
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-
-        new Chart(document.getElementById('userActivityChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Active', 'Inactive'],
-                datasets: [{
-                    data: [
-                        userData.filter(u => u.status === 'Active').length || 1,
-                        userData.filter(u => u.status === 'Inactive').length || 1
-                    ],
-                    backgroundColor: ['#60a5fa', '#ef4444']
-                }]
-            },
-            options: { responsive: true }
-        });
-    } catch (error) {
-        console.error('Initialize charts failed:', error);
-    }
-}
-
-// Logout
-window.logout = function() {
-    try {
-        auth.signOut().then(() => {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }).catch(error => {
-            console.error('Logout failed:', error);
-            alert('Error logging out');
-        });
-    } catch (error) {
-        console.error('Logout failed:', error);
-    }
-};
-
-// Close Dropdowns
-document.addEventListener('click', e => {
-    try {
-        if (!e.target.closest('.search-bar')) document.getElementById('suggestions').classList.remove('active');
-        if (!e.target.closest('.user-profile')) document.getElementById('userDropdown').classList.remove('active');
-        if (!e.target.closest('.notification-container')) document.getElementById('notificationDropdown').classList.remove('active');
-    } catch (error) {
-        console.error('Close dropdowns failed:', error);
-    }
-});
-
-// Initialize Page
+// Initialize notifications on page load
 document.addEventListener('DOMContentLoaded', () => {
+    updateNotificationUI();
+    updateNotificationBadge();
+});
+
+// Add notification triggers to existing functions
+const originalAddData = window.addData;
+window.addData = async function() {
+    const result = await originalAddData.apply(this, arguments);
+    if (result) {
+        showNotification("New API has been added successfully", "add");
+    }
+    return result;
+};
+
+const originalDeleteAPI = window.deleteAPI;
+window.deleteAPI = async function() {
+    const result = await originalDeleteAPI.apply(this, arguments);
+    if (result) {
+        showNotification("API has been deleted successfully", "delete");
+    }
+    return result;
+};
+
+const originalDeleteUserFromFirestore = window.deleteUserFromFirestore;
+window.deleteUserFromFirestore = async function() {
+    const result = await originalDeleteUserFromFirestore.apply(this, arguments);
+    if (result) {
+        showNotification("User has been deleted successfully", "delete");
+    }
+    return result;
+};
+
+// Add notification for user management
+window.addUser = async function() {
+    // Your existing addUser code
+    showNotification("New user has been added successfully", "add");
+};
+
+// Add notification for API updates
+window.updateAPI = async function() {
+    // Your existing updateAPI code
+    showNotification("API has been updated successfully", "update");
+};
+
+// Add click outside handler
+document.addEventListener('click', function(event) {
+    const container = document.getElementById('notificationContainer');
+    const bellIcon = document.querySelector('.fa-bell');
+
+    // Check if click is outside notification container and bell icon
+    if (container.style.display === 'block' &&
+        !container.contains(event.target) &&
+        !bellIcon.contains(event.target)) {
+        container.style.display = 'none';
+    }
+});
+
+// Theme toggle functionality
+let isDarkMode = true; // Default to dark mode
+
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('light-theme');
+
+    // Update theme icon
+    const themeIcon = document.querySelector('.theme-toggle i');
+    if (isDarkMode) {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    } else {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+    }
+
+    // Save theme preference
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+}
+
+// Initialize theme
+document.addEventListener('DOMContentLoaded', () => {
+    // Check saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        isDarkMode = false;
+        document.body.classList.add('light-theme');
+    }
+
+    // Add theme toggle button to navbar
+    const navIcon = document.querySelector('.navIcon');
+    const themeToggle = document.createElement('div');
+    themeToggle.className = 'theme-toggle';
+    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    themeToggle.onclick = toggleTheme;
+    navIcon.appendChild(themeToggle);
+
+    // ... rest of your initialization code ...
+});
+
+
+
+
+window.userContainer = function userContainer() {
+    const userInfo = document.getElementById("userInfo");
+    if (userInfo) {
+        userInfo.style.display = "block";
+
+        // Remove any existing click listener
+        window.removeEventListener("click", hideUserInfo);
+
+        // Add new click listener after a small delay
+        setTimeout(() => {
+            window.addEventListener("click", hideUserInfo);
+        }, 0);
+    }
+};
+
+function hideUserInfo() {
+    const userInfo = document.getElementById("userInfo");
+    if (userInfo) {
+        userInfo.style.display = "none";
+        window.removeEventListener("click", hideUserInfo);
+    }
+}
+
+
+
+window.logoutUser = function logoutUser() {
+    const auth = getAuth();
+    signOut(auth)
+        .then(() => {
+
+            window.location.href = "index.html"; // Redirect to login page
+        })
+        .catch((error) => {
+            console.error("Error signing out: ", error);
+            alert("Failed to sign out!");
+        });
+};
+
+
+
+onAuthStateChanged(auth, async(user) => {
+
+    const email = user.email;
+
+    document.getElementById("userEmail").innerHTML = `${email}`
+    document.getElementById("userName").innerHTML = `Admin`
+
+
+});
+
+
+// home data 
+async function fetchHomeData() {
+    const apisCollection = collection(db, "apis");
+    const querySnapshot = await getDocs(apisCollection);
+    const container = document.getElementById("apiHomeCardContainer");
+    const countDiv = document.getElementById("apiCountDiv");
+
+    container.innerHTML = ""; // Clear the container
+
+    // Show total count
+    countDiv.innerText = ` ${querySnapshot.size}`;
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const apiCard = document.createElement("div");
+        apiCard.className = "apiCard";
+        apiCard.setAttribute('data-api-id', doc.id);
+        apiCard.innerHTML = `
+            <div class="cardHeader">
+                <h2>${data.name}</h2>
+                <i class="fa fa-heart heart-icon" onclick="toggleFavorite('${doc.id}')" title="Add to Favorites"></i>
+            </div>
+            <p>${data.description}</p>
+            <p><b>Languages: </b>${data.language.join(', ')}</p>
+            <p><b>Security: </b>${data.security}</p>
+            <p><b>License: </b>${data.license}</p>
+            <div class="veiwBtn">
+                <button onclick="viewDocumentationHome('${doc.id}')" class="edit-btn">View Doc</button>
+                <button onclick="viewIntegrationHome('${doc.id}')" class="edit-btn integrate-btn">Integration</button>
+            </div>
+        `;
+        container.appendChild(apiCard);
+
+        // Update heart icon color based on favorite status
+        updateHeartIcon(doc.id);
+    });
+}
+
+
+window.viewDocumentationHome = async function(apiId) {
     try {
-        // Initialize event listeners for theme toggle and user profile
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', toggleTheme);
-        }
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
 
-        const userProfileBtn = document.getElementById('userProfileBtn');
-        const userDropdown = document.querySelector('.user-dropdown');
-        if (userProfileBtn && userDropdown) {
-            userProfileBtn.addEventListener('click', toggleUserDropdown);
-        }
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const docData = data.documentation;
 
-        const searchInput = document.querySelector('.search-bar input');
-        const suggestions = document.querySelector('.suggestions');
-        if (searchInput && suggestions) {
-            searchInput.addEventListener('input', filterDashboard);
+            // Show the popup
+            const docPopup = document.getElementById("docPopup");
+            docPopup.style.display = "flex";
+
+            // Update popup content without edit buttons
+            document.getElementById("addDoc").innerHTML = `
+                <div class="addApiName">
+                    <h1>${docData.title}</h1>
+                    <i class="fa fa-xmark" onclick="closeDocPopup()"></i>
+                </div>
+                <div class="addApiInput">
+                <h3>Description</h3>
+                    <div class="content-block">
+                        <div class="block-header">
+                        </div>
+                        <div class="content" id="description-content-${apiId}">${docData.description}</div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Endpoints</span>
+                    </div>
+                    <div class="code-block">
+                        <pre id="endpoints-content-${apiId}">${docData.endpoints}</pre>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Parameters</span>
+                    </div>
+                    <div class="code-block">
+                        <pre id="parameters-content-${apiId}">${docData.parameters}</pre>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Examples</span>
+                    </div>
+                    <div class="code-block">
+                        <pre id="examples-content-${apiId}">${docData.examples}</pre>
+                    </div>
+                </div>
+            `;
+        } else {
+            alert("Documentation not found!");
         }
     } catch (error) {
-        console.error('Page initialization failed:', error);
+        console.error("Error loading documentation: ", error);
+        alert("Error loading documentation");
     }
+};
+
+
+window.viewIntegrationHome = async function(apiId) {
+    try {
+        const docRef = doc(db, "apis", apiId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const integrationData = data.integration;
+
+            // Show the popup
+            const integrationPopup = document.getElementById("integrationPopup");
+            integrationPopup.style.display = "flex";
+
+            // Update popup content with improved layout without update buttons
+            document.getElementById("addIntegration").innerHTML = `
+                <div class="addApiName">
+                    <h1>${integrationData.title}</h1>
+                    <i class="fa fa-xmark" onclick="closeIntegrationPopup()"></i>
+                </div>
+                <div class="addApiInput">
+                <h3>Description</h3>
+                    <div class="content-block">
+                        <div class="block-header">
+                        </div>
+                        <div class="content" id="integration-description-content-${apiId}">${integrationData.description}</div>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Setup Steps</span>
+                    </div>
+                    <div class="code-block">
+                        <pre id="integration-setup-content-${apiId}">${integrationData.setupSteps}</pre>
+                    </div>
+
+                    <div class="section-header">
+                        <span>Code Examples</span>
+                    </div>
+                    <div class="code-block">
+                        <pre id="integration-code-content-${apiId}">${integrationData.codeExamples}</pre>
+                    </div>
+                </div>
+            `;
+        } else {
+            alert("Integration data not found!");
+        }
+    } catch (error) {
+        console.error("Error loading integration: ", error);
+        alert("Error loading integration data");
+    }
+};
+
+fetchHomeData()
+
+
+// Assuming you have Firebase initialized
+
+// Function to get the current user's data from Firestore
+// Function to get the current user's data from Firestore
+// Show user info when icon is clicked
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event to user icon
+    const userIcon = document.querySelector('.usersIcon');
+    if (userIcon) {
+        userIcon.addEventListener('click', async function(event) {
+            event.stopPropagation();
+            await userhomeContainer(); // Load and show user info
+        });
+    }
+
+    // Add click outside handler
+    document.addEventListener('click', function(event) {
+        const userInfo = document.getElementById('userInfo');
+        const userIcon = document.querySelector('.usersIcon');
+
+        if (userInfo && userIcon &&
+            !userInfo.contains(event.target) &&
+            !userIcon.contains(event.target)) {
+            userInfo.style.display = 'none';
+        }
+    });
+});
+
+// Function to fetch and show user info
+window.userhomeContainer = async function() {
+    const userInfoDiv = document.getElementById("userInfo");
+    const userNameEl = document.getElementById("userName");
+    const userEmailEl = document.getElementById("userEmail");
+
+    if (!userInfoDiv || !userNameEl || !userEmailEl) {
+        console.error("User info elements not found");
+        return;
+    }
+
+    const user = auth.currentUser;
+
+    if (user) {
+        try {
+            const usersCollection = collection(db, 'users');
+            const q = query(usersCollection, where("email", "==", user.email));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const userData = querySnapshot.docs[0].data();
+                userNameEl.innerHTML = userData.userName || "No name found";
+                userEmailEl.textContent = user.email;
+                userInfoDiv.style.display = "block";
+            } else {
+                console.log("User not found in Firestore.");
+                userNameEl.innerHTML = "Admin";
+                userEmailEl.textContent = user.email;
+                userInfoDiv.style.display = "block";
+            }
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            userNameEl.innerHTML = "Admin";
+            userEmailEl.textContent = user.email;
+            userInfoDiv.style.display = "block";
+        }
+    } else {
+        console.log("No user is logged in.");
+    }
+};
+
+// Logout function
+window.homelogoutUser = function() {
+    signOut(auth).then(() => {
+        alert("Logged out successfully!");
+        window.location.href = "/login";
+    }).catch((error) => {
+        console.error("Logout error:", error);
+        alert("Logout failed");
+    });
+};
+
+// Initialize favorite count from local storage
+let favoriteCount = 0;
+let favoriteAPIs = JSON.parse(localStorage.getItem('favoriteAPIs')) || [];
+
+// Update favorite count in navbar
+function updateFavoriteCount() {
+    favoriteCount = favoriteAPIs.length;
+    const heartIcon = document.querySelector('.fa-heart');
+    if (heartIcon) {
+        heartIcon.setAttribute('data-count', favoriteCount);
+    }
+}
+
+// Toggle favorite status
+window.toggleFavorite = function toggleFavorite(apiId) {
+    const index = favoriteAPIs.indexOf(apiId);
+    if (index === -1) {
+        favoriteAPIs.push(apiId);
+    } else {
+        favoriteAPIs.splice(index, 1);
+    }
+    localStorage.setItem('favoriteAPIs', JSON.stringify(favoriteAPIs));
+    updateFavoriteCount();
+    updateHeartIcon(apiId);
+}
+
+// Update heart icon color
+function updateHeartIcon(apiId) {
+    const heartIcon = document.querySelector(`[data-api-id="${apiId}"] .fa-heart`);
+    if (heartIcon) {
+        if (favoriteAPIs.includes(apiId)) {
+            heartIcon.style.color = 'red';
+        } else {
+            heartIcon.style.color = 'inherit';
+        }
+    }
+}
+
+// Show favorite APIs popup
+function showFavoriteAPIs() {
+    const popup = document.createElement('div');
+    popup.className = 'favorite-popup';
+    popup.innerHTML = `
+        <div class="favorite-popup-content">
+            <div class="favorite-popup-header">
+                <h2>Favorite APIs</h2>
+                <i class="fa fa-times" onclick="this.parentElement.parentElement.parentElement.remove()"></i>
+            </div>
+            <div class="favorite-popup-body">
+                ${favoriteAPIs.map(apiId => {
+                    const apiCard = document.querySelector(`[data-api-id="${apiId}"]`);
+                    if (apiCard) {
+                        // Clone the card and modify it for the popup
+                        const cardClone = apiCard.cloneNode(true);
+                        const heartIcon = cardClone.querySelector('.fa-heart');
+                        if (heartIcon) {
+                            heartIcon.style.color = 'red';
+                            heartIcon.onclick = (e) => {
+                                e.stopPropagation();
+                                toggleFavorite(apiId);
+                                popup.remove();
+                                showFavoriteAPIs();
+                            };
+                        }
+                        return cardClone.outerHTML;
+                    }
+                    return '';
+                }).join('')}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(popup);
+}
+
+// Get API by ID
+function getApiById(apiId) {
+    const apiCard = document.querySelector(`[data-api-id="${apiId}"]`);
+    if (apiCard) {
+        return {
+            name: apiCard.querySelector('h2').textContent,
+            description: apiCard.querySelector('p').textContent
+        };
+    }
+    return { name: apiId, description: '' };
+}
+
+// Add click event to heart icon in navbar
+document.addEventListener('DOMContentLoaded', () => {
+    const heartIcon = document.querySelector('.fa-heart');
+    if (heartIcon) {
+        heartIcon.addEventListener('click', showFavoriteAPIs);
+        updateFavoriteCount();
+    }
+});
+
+// Initialize favorite count on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateFavoriteCount();
+    // Update heart icons for all API cards
+    favoriteAPIs.forEach(apiId => updateHeartIcon(apiId));
+});
+
+// Initialize favorite count on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateFavoriteCount();
+    // Update heart icons for all API cards
+    favoriteAPIs.forEach(apiId => updateHeartIcon(apiId));
 });
