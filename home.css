@@ -523,7 +523,6 @@ select,
     margin-top: 20px;
     align-items: center;
     text-align: center;
-    
 }
 
 
@@ -562,7 +561,12 @@ select,
     font-size: 14px;
     line-height: 1.5;
     margin-bottom: 10px;
-    color: #94a3b8;
+    color: #cdd0d3;
+    text-align: left;
+}
+
+.api-card p b {
+    color: #2196F3 !important;
 }
 
 .apiCard button {
@@ -589,6 +593,7 @@ select,
     display: flex;
     gap: 12px;
     justify-content: center;
+    margin-left: 18px;
 }
 
 
@@ -692,7 +697,6 @@ select,
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(5px);
-     
 }
 
 #addDoc,
@@ -706,7 +710,6 @@ select,
     position: relative;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border: 1px solid #334155;
-    
 }
 
 #addDoc .addApiName,
@@ -1561,7 +1564,6 @@ body.light-theme .cards .cardCount {
 
 body.light-theme .chart-container {
     background-color: rgb(176, 176, 176);
-
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(96, 165, 250, 0.2);
     border-radius: 12px;
@@ -1576,9 +1578,7 @@ body.light-theme .chart-container h3 {
 }
 
 body.light-theme .analytics .chart-box {
-       background-color: rgb(176, 176, 176);
-
-
+    background-color: rgb(176, 176, 176);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(96, 165, 250, 0.2);
     border-radius: 12px;
@@ -1596,14 +1596,11 @@ body.light-theme .analytics .chart-box h3 {
 /* Chart Text Colors */
 
 body.light-theme .chart-container canvas {
-      background-color: rgb(176, 176, 176);
-
+    background-color: rgb(176, 176, 176);
 }
 
 body.light-theme .analytics canvas {
-       background-color: rgb(176, 176, 176);
-
-
+    background-color: rgb(176, 176, 176);
 }
 
 
@@ -1625,7 +1622,8 @@ body.light-theme .chart-container .chartjs-label {
     color: #000000 !important;
 }
 
-body.light-theme #userInfo {
+body.light-theme #userInfo,
+#userDashInfo {
     background-color: white;
     border: 1px solid black;
     color: black;
@@ -1646,7 +1644,8 @@ body.light-theme .analytics .chart-box:hover {
     font-weight: bold;
 }
 
-#userInfo {
+#userInfo,
+#userDashInfo {
     display: none;
     position: fixed;
     top: 0;
@@ -1663,7 +1662,8 @@ body.light-theme .analytics .chart-box:hover {
     z-index: 1000;
 }
 
-body.light-theme #userInfo {
+body.light-theme #userInfo,
+#userDashInfo {
     background-color: white;
 }
 
@@ -1671,11 +1671,13 @@ body.light-theme #userEmail {
     color: black;
 }
 
-#userInfo .usersIcon i {
+#userInfo .usersIcon i,
+#userDashInfo .usersIcon i {
     font-size: 50px;
 }
 
-#userInfo .usersIcon {
+#userInfo .usersIcon,
+#userDashInfo .usersIcon {
     display: flex;
     align-items: center;
     gap: 20px;
@@ -1686,7 +1688,8 @@ body.light-theme #userEmail {
     padding: 20px;
 }
 
-#userInfo .usersIcon #userName {
+#userInfo,
+#userDashInfo .usersIcon #userName {
     color: #93c5fd;
 }
 
@@ -1895,7 +1898,6 @@ body.light-theme .team-card i {
     display: flex;
     justify-content: center;
     align-items: center;
-  
 }
 
 .favorite-popup-content {
@@ -1940,7 +1942,6 @@ body.light-theme .team-card i {
     background-color: #f8f9fa;
     border-radius: 5px;
     transition: all 0.3s ease;
-    
 }
 
 .favorite-api-card:hover {
@@ -2030,4 +2031,345 @@ body.light-theme .team-card i {
     border-radius: 50%;
     padding: 2px 6px;
     font-size: 12px;
+}
+
+#userDashInfo {
+    background-color: #1e293b;
+}
+
+body.light-theme #userDashInfo {
+    background-color: white;
+}
+
+body.light-theme #userDashInfo span {
+    color: black;
+}
+
+
+/* Responsive Design for Home Page */
+
+@media (max-width: 1200px) {
+    .admin {
+        grid-template-columns: 200px 1fr;
+    }
+    .nav .navFirst {
+        width: 25%;
+    }
+    .nav .navSearch {
+        width: 45%;
+    }
+    .nav .navIcon {
+        width: 30%;
+    }
+    #apiHomeCardContainer {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    .admin {
+        grid-template-columns: 180px 1fr;
+    }
+    .nav {
+        padding: 10px 20px;
+    }
+    .nav .navFirst img {
+        width: 40px;
+        height: 40px;
+    }
+    .nav .navFirst .name {
+        font-size: 20px;
+    }
+    .nav .navSearch input {
+        padding: 12px;
+    }
+    .nav i {
+        font-size: 18px;
+    }
+    .sidebar .navigation .name {
+        font-size: 20px;
+    }
+    .navigation2 {
+        padding: 12px 8px;
+    }
+    .main .overview .name {
+        font-size: 25px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin {
+        grid-template-columns: 1fr;
+    }
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        background: #1e293b;
+    }
+    .sidebar.active {
+        left: 0;
+    }
+    .nav {
+        padding: 10px 15px;
+    }
+    .nav .navFirst {
+        width: 40%;
+    }
+    .nav .navSearch {
+        width: 35%;
+    }
+    .nav .navIcon {
+        width: 25%;
+    }
+    .nav .navFirst img {
+        width: 35px;
+        height: 35px;
+    }
+    .nav .navFirst .name {
+        font-size: 18px;
+    }
+    .nav .navSearch input {
+        padding: 10px;
+        font-size: 14px;
+    }
+    .nav i {
+        font-size: 16px;
+        padding: 8px;
+    }
+    #apiHomeCardContainer {
+        grid-template-columns: 1fr;
+        padding: 0 15px;
+    }
+    .apiCard {
+        width: 100%;
+        margin: 10px 0;
+    }
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .footer-links {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    .footer-legal {
+        justify-content: center;
+    }
+    /* Team Section Responsive */
+    .team-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+    .team-card {
+        padding: 1.5rem;
+    }
+    .team-member-img img {
+        width: 120px;
+        height: 120px;
+    }
+    /* About Section Responsive */
+    .about-section {
+        padding: 1.5rem;
+    }
+    .about-section h2 {
+        font-size: 1.8rem;
+    }
+    .about-section h3 {
+        font-size: 1.3rem;
+    }
+    .about-section p {
+        font-size: 1rem;
+    }
+    .about-section ul li {
+        padding: 0.6rem 0 0.6rem 1.5rem;
+    }
+    /* Contact Section Responsive */
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    .contact-info {
+        padding-right: 0;
+    }
+    .contact-form {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .nav {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .nav .navFirst {
+        width: 100%;
+        justify-content: center;
+    }
+    .nav .navSearch {
+        width: 100%;
+    }
+    .nav .navSearch input {
+        width: 100%;
+    }
+    .nav .navIcon {
+        width: 100%;
+        justify-content: center;
+    }
+    .main .overview {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    .main .overview .name {
+        font-size: 20px;
+    }
+    .apiCard {
+        padding: 15px;
+    }
+    .apiCard h2 {
+        font-size: 18px;
+    }
+    .apiCard p {
+        font-size: 14px;
+    }
+    .veiwBtn {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .veiwBtn button {
+        width: 100%;
+    }
+    .footer {
+        padding: 30px 20px;
+    }
+    .footer-logo h2 {
+        font-size: 1.5rem;
+    }
+    .footer-description {
+        font-size: 0.9rem;
+    }
+    .footer-section h3 {
+        font-size: 1.1rem;
+    }
+    .footer-section ul li a {
+        font-size: 0.9rem;
+    }
+    .social-links {
+        justify-content: center;
+    }
+    .contact-info p {
+        font-size: 0.9rem;
+    }
+}
+
+
+/* Mobile Menu Toggle */
+
+.mobile-menu-toggle {
+    display: none;
+    cursor: pointer;
+    padding: 10px;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1001;
+    background: rgba(30, 41, 59, 0.9);
+    border-radius: 5px;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.mobile-menu-toggle i {
+    color: #60a5fa;
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+}
+
+
+/* Responsive Popups */
+
+@media (max-width: 768px) {
+    #addAPI,
+    #addDoc,
+    #addIntegration {
+        width: 90%;
+        height: 80vh;
+    }
+    .addApiInput {
+        padding: 15px;
+    }
+    .addApiInput label {
+        font-size: 16px;
+    }
+    .addApiInput input,
+    .addApiInput textarea,
+    .addApiInput select {
+        padding: 12px;
+        font-size: 14px;
+    }
+    .addApiInput button {
+        padding: 12px;
+        font-size: 16px;
+    }
+}
+
+
+/* Responsive Notifications */
+
+@media (max-width: 576px) {
+    .notification-container {
+        width: 90%;
+        right: 5%;
+    }
+    .notification-item {
+        padding: 10px;
+    }
+    .notification-content p {
+        font-size: 0.9rem;
+    }
+    .notification-item small {
+        font-size: 0.7rem;
+    }
+}
+
+
+/* Responsive User Info */
+
+@media (max-width: 576px) {
+    #userInfo,
+    #userDashInfo {
+        width: 90%;
+        right: 5%;
+    }
+    .usersIcon {
+        padding: 15px;
+    }
+    .usersIcon i {
+        font-size: 40px;
+    }
+    .otherInfo {
+        padding: 15px;
+    }
+}
+
+.disc {
+    display: flex;
+    justify-content: space-between;
 }
