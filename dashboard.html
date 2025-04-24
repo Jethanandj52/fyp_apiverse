@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin APIvser</title>
+    <link rel="stylesheet" href="home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body id="body">
+    <div>
+        <div class="admin">
+            <div class="nav">
+                <div class="navFirst">
+                    <img src="assets/title-logo.png" alt="">
+                    <div class="name">APIVerse</div>
+                </div>
+                <div class="navSearch">
+                    <input type="text" placeholder="Search APIs..." id="searchingApi">
+                </div>
+                <div class="navIcon">
+                    <i class="fa-solid fa-bell" class="ii" onclick="toggleNotifications()"></i>
+
+                    <i class="fa-solid fa-user" onclick="userContainer()"> </i>
+                </div>
+            </div>
+            <div class="sidebar">
+                <div class="sidebarFirst">
+                    <div class="navigation">
+                        <i class="fas fa-compass"></i>
+                        <div class="name">Navigation</div>
+                    </div>
+                    <div class="sidebarSecond">
+                        <div class="navigation2" onclick="overview()">
+                            <i class="fas fa-home"></i>
+                            <div class="name">Overview</div>
+                        </div>
+                        <div class="navigation2" onclick="apiManagment()">
+                            <i class="fas fa-plug"></i>
+                            <div class="name">API Managment</div>
+                        </div>
+                        <div class="navigation2" onclick="userManagment()">
+                            <i class="fas fa-users"></i>
+                            <div class="name">User Managment</div>
+                        </div>
+                        <div class="navigation2" onclick="analytics()">
+                            <i class="fas fa-chart-bar"></i>
+                            <div class="name">Analytics</div>
+                        </div>
+                        <div class="navigation2" onclick="backWindow()">
+                            <i class="fas fa-globe"></i>
+                            <div class="name">Back To Home</div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="main">
+                <div id="overview">
+                    <div class=" overview">
+                        <i class="fas fa-home"></i>
+                        <div class="name">Dashboard Overview</div>
+                    </div>
+
+                    <div class="mainCard">
+                        <div class="cards">
+                            <div class="cardName">Total APIs</div>
+                            <div id="apiCountDiv"></div>
+
+                        </div>
+
+                        <div class="cards">
+                            <div class="cardName">Active Users</div>
+                            <div id="userCount">0</div>
+                        </div>
+
+                        <div class="cards">
+                            <div class="cardName">API Calls Today </div>
+                            <div class="cardCount" id="apiCall">0</div>
+                        </div>
+
+                        <div class="cards">
+                            <div class="cardName">Security Alerts</div>
+                            <div class="cardCount" id="apiSecurity">0</div>
+                        </div>
+
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>API Usage Over Time</h3>
+                        <canvas id="apiUsageChart"></canvas>
+                    </div>
+
+                </div>
+                <!-- api managment -->
+                <div id="apiManagment">
+                    <div class=" overview">
+                        <i class="fas fa-plug"></i>
+                        <div class="name">API Management</div>
+                    </div>
+
+                    <div class="apiAdd">
+                        <button onclick="addAPI()">Add API</button>
+                    </div>
+                    <div id="apiCardContainer"></div>
+
+                </div>
+                <!-- usermanagment -->
+                <div id="userManagment">
+                    <div class=" overview">
+                        <i class="fas fa-users"></i>
+                        <div class="name">User Managment</div>
+                    </div>
+
+                    <div id="userContainer"></div>
+                </div>
+                <!-- analytics -->
+                <div class="analytics" id="analytics">
+                    <h2>Analytics</h2>
+                    <div class="charts-container">
+                        <!-- Bar Chart: Top APIs by Usage -->
+                        <div class="chart-box">
+                            <h3>Top APIs by Usage</h3>
+                            <canvas id="topApisChart"></canvas>
+                        </div>
+                        <!-- Donut Chart: User Activity -->
+                        <div class="chart-box">
+                            <h3>User Activity</h3>
+                            <canvas id="userActivityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="footer-content">
+                    <div class="footer-main">
+                        <div class="footer-logo">
+                            <img src="assets/title-logo.png" alt="Apiverse Logo" class="logo-img" onerror="this.style.display='none'">
+                            <h2>Apiverse</h2>
+                        </div>
+                        <p class="footer-description">Your gateway to the world of APIs. Discover, integrate, and innovate.</p>
+                    </div>
+
+
+
+                    <div class="footer-links">
+                        <div class="footer-section">
+                            <h3>Quick Links</h3>
+                            <ul>
+                                <li><a href="#overview" onclick="overview()">Overview</a></li>
+                                <li><a href="#api-management" onclick="apiManagment()">API Management</a></li>
+                                <li><a href="#user-management" onclick="userManagment()">User Management</a></li>
+                                <li><a href="#analytics" onclick="analytics()">Analytics</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-section">
+                            <h3>Resources</h3>
+                            <ul>
+                                <li><a href="#tutorials">Tutorials</a></li>
+                                <li><a href="#blog">Blog</a></li>
+                                <li><a href="#support">Support</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-section">
+                            <h3>Connect With Us</h3>
+                            <div class="social-links">
+                                <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                                <a href="#" class="social-icon"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                            <div class="contact-info">
+                                <p><i class="fas fa-envelope"></i> support@apiverse.com</p>
+                                <p><i class="fas fa-phone"></i> +923042507846</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>© 2025 Apiverse. All rights reserved.</p>
+                    <div class="footer-legal">
+                        <a href="#privacy">Privacy Policy</a>
+                        <a href="#terms">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <section id="popup">
+        <div id="addAPI">
+            <div class="addApiName">
+                <h1>Add API</h1>
+                <i class="fa fa-xmark" onclick="cancel()"></i>
+            </div>
+            <div class="addApiInput">
+                <!-- Basic API Information -->
+                <h3>Basic Information</h3>
+                <label for="apiName">API Name</label>
+                <input type="text" id="apiName" placeholder="e.g. OpenWeather API" required>
+
+                <label for="description">Description</label>
+                <textarea id="description" cols="30" rows="5" placeholder="Short description about the API" required></textarea>
+
+                <label for="language">Language (comma-separated)</label>
+                <input type="text" id="language" placeholder="e.g. JavaScript, Python">
+
+                <label for="category">Category</label>
+                <select id="category" required>
+                  <option selected disabled>Select Category</option>
+                  <option value="Weather">Weather</option>
+                  <option value="News">News</option>
+                  <option value="Payment">Payment</option>
+                  <option value="Communication">Communication</option>
+                  <option value="Geolocation">Geolocation</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Development">Development</option>
+                </select>
+
+                <label for="security">Security</label>
+                <input type="text" id="security" placeholder="e.g. No known vulnerabilities" required>
+
+                <label for="license">License</label>
+                <input type="text" id="license" placeholder="e.g. MIT" required>
+
+                <!-- Documentation Section -->
+                <h3>Documentation</h3>
+                <label for="docTitle">Documentation Title</label>
+                <input type="text" id="docTitle" placeholder="e.g. OpenWeatherMap API Documentation" required>
+
+                <label for="docDescription">Documentation Description</label>
+                <textarea id="docDescription" cols="30" rows="5" placeholder="Detailed description about the API documentation" required></textarea>
+
+                <label for="endpoints">Endpoints</label>
+                <textarea id="endpoints" cols="30" rows="5" placeholder="List of available endpoints and their descriptions" required></textarea>
+
+                <label for="parameters">Parameters</label>
+                <textarea id="parameters" cols="30" rows="5" placeholder="List of parameters and their descriptions" required></textarea>
+
+                <label for="examples">Documentation Examples</label>
+                <textarea id="examples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <!-- Integration Section -->
+                <h3>Integration</h3>
+                <label for="integrationTitle">Integration Title</label>
+                <input type="text" id="integrationTitle" placeholder="e.g. OpenWeatherMap Integration" required>
+
+                <label for="integrationDescription">Integration Description</label>
+                <textarea id="integrationDescription" cols="30" rows="5" placeholder="Description of the integration process" required></textarea>
+
+                <label for="setupSteps">Setup Steps</label>
+                <textarea id="setupSteps" cols="30" rows="5" placeholder="Step-by-step setup instructions" required></textarea>
+
+                <label for="codeExamples">Integration Code Examples</label>
+                <textarea id="codeExamples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <button id="addApiBtn" onclick="addData()">Add API</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Documentation Popup -->
+    <section id="docPopup">
+        <div id="addDoc">
+            <div class="addApiName">
+                <h1>Add Documentation</h1>
+                <i class="fa fa-xmark" onclick="closeDocPopup()"></i>
+            </div>
+            <div class="addApiInput">
+                <label for="docTitle">Documentation Title</label>
+                <input type="text" id="docTitle" placeholder="e.g. OpenWeatherMap API Documentation" required>
+
+                <label for="docDescription">Description</label>
+                <textarea id="docDescription" cols="30" rows="5" placeholder="Detailed description about the API documentation" required></textarea>
+
+                <label for="endpoints">Endpoints</label>
+                <textarea id="endpoints" cols="30" rows="5" placeholder="List of available endpoints and their descriptions" required></textarea>
+
+                <label for="parameters">Parameters</label>
+                <textarea id="parameters" cols="30" rows="5" placeholder="List of parameters and their descriptions" required></textarea>
+
+                <label for="examples">Examples</label>
+                <textarea id="examples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <button id="addDocBtn" onclick="addDocumentation()">Add Documentation</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integration Popup -->
+    <section id="integrationPopup">
+        <div id="addIntegration">
+            <div class="addApiName">
+                <h1>Add Integration Code</h1>
+                <i class="fa fa-xmark" onclick="closeIntegrationPopup()"></i>
+            </div>
+            <div class="addApiInput">
+                <label for="integrationTitle">Integration Title</label>
+                <input type="text" id="integrationTitle" placeholder="e.g. OpenWeatherMap Integration" required>
+
+                <label for="integrationDescription">Description</label>
+                <textarea id="integrationDescription" cols="30" rows="5" placeholder="Description of the integration process" required></textarea>
+
+                <label for="setupSteps">Setup Steps</label>
+                <textarea id="setupSteps" cols="30" rows="5" placeholder="Step-by-step setup instructions" required></textarea>
+
+                <label for="codeExamples">Code Examples</label>
+                <textarea id="codeExamples" cols="30" rows="5" placeholder="Code examples for different languages" required></textarea>
+
+                <button id="addIntegrationBtn" onclick="addIntegration()">Add Integration</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification System -->
+    <div class="notification-container" id="notificationContainer">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button onclick="clearNotifications()">Clear All</button>
+        </div>
+        <div class="notification-list" id="notificationList"></div>
+    </div>
+
+    <div id="userDashInfo">
+        <div class="usersIcon">
+            <div>
+                <i class="fa fa-user-circle"></i>
+            </div>
+            <div>
+                <div id="userName">Admin</div>
+                <div id="userEmail">admin@gmail.com</div>
+            </div>
+
+
+
+        </div>
+
+        <div class="otherInfo">
+            <div class="userIcon">
+                <i class="fa fa-cog"></i>
+                <span class="userRole">Setting</span>
+            </div>
+
+            <div class="userIcon">
+                <i class="fa fa-info-circle"></i>
+                <span class="userRole">Help</span>
+            </div>
+
+
+            <div id="logout">
+                <div onclick="logoutUser()"><i class="fa fa-sign-out"></i>Logout</div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script type="module" src="dashboard.js"></script>
+
+
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,46 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>APIverse Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div id="SignMethod">
+        <div id="login">
+            <div id="loginPage">
+                <img src="assets/title-logo.png" alt="Logo">
+                <input type="text" placeholder="Enter Username" id="userName">
+                <input type="text" placeholder="Enter Email" id="email">
+                 <div class="password">
+                    <input type="password" name="" id="password" placeholder="*********">
+                    <i class="fa-solid fa-eye-slash" id="togglePassword" onclick="passwordShow()" style="transform: translateY(-30%);"></i>
+                 </div>
+                
+
+                 
+                  
+
+                <button class="login-btn" onclick="signup()">SignUp</button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <button class="google-btn" onclick="googleSignIn()">
+                    <img src="assets/google.png" alt="Google"> Sign up with Google
+                </button>
+
+                <p class="signup-text">You have an account? <a href="index.html">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
