@@ -154,8 +154,10 @@ window.showIntegrationPopup = function(apiId) {
 
 window.closeDocPopup = function() {
     const docPopup = document.getElementById("docPopup");
-    docPopup.style.display = "none";
-}
+    if (docPopup) {
+        docPopup.style.display = "none";
+    }
+};
 
 window.closeIntegrationPopup = function() {
     const integrationPopup = document.getElementById("integrationPopup");
@@ -282,7 +284,7 @@ window.viewDocumentation = async function(apiId) {
 
             // Show the popup
             const docPopup = document.getElementById("docPopup");
-            docPopup.style.display = "f";
+            docPopup.style.display = "flex";
 
             // Update popup content with improved layout and edit buttons
             document.getElementById("addDoc").innerHTML = `
@@ -956,22 +958,28 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
-
 window.userContainer = function userContainer() {
-    const userInfo = document.getElementById("userInfo");
-    if (userInfo) {
-        userInfo.style.display = "block";
 
-        // Remove any existing click listener
-        window.removeEventListener("click", hideUserInfo);
+    document.getElementById("userDashInfo").style.display = "block"
 
-        // Add new click listener after a small delay
-        setTimeout(() => {
-            window.addEventListener("click", hideUserInfo);
-        }, 0);
-    }
+    window.removeEventListener("click", hideDashUserInfo);
+
+    // Add new click listener after a small delay
+    setTimeout(() => {
+        window.addEventListener("click", hideDashUserInfo);
+    }, 0);
+
 };
+
+
+
+function hideDashUserInfo() {
+    const userInfo = document.getElementById("userDashInfo");
+    if (userInfo) {
+        userInfo.style.display = "none";
+        window.removeEventListener("click", hideUserInfo);
+    }
+}
 
 function hideUserInfo() {
     const userInfo = document.getElementById("userInfo");
@@ -1348,4 +1356,159 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFavoriteCount();
     // Update heart icons for all API cards
     favoriteAPIs.forEach(apiId => updateHeartIcon(apiId));
+});
+
+
+ 
+// ✅ Your API Data Object
+// const apiData = {
+//   name: "OpenWeatherMap API",
+//   description: "Provides current weather data for any location, including over 200,000 cities worldwide.",
+//   language: ["JavaScript", "Python", "PHP"],
+//   category: "Weather",
+//   security: "API Key",
+//   license: "Freemium (Free tier available)",
+//   createdAt: new Date(),
+
+//   documentation: {
+//     title: "OpenWeatherMap API Documentation",
+//     description: "Get real-time weather conditions including temperature, humidity, and description for a specified city.",
+//     endpoints: [
+//       {
+//         url: "https://api.openweathermap.org/data/2.5/weather",
+//         method: "GET",
+//         description: "Returns current weather data for a given city."
+//       }
+//     ],
+//     parameters: [
+//       { name: "q", type: "string", required: true, description: "City name (e.g. 'London')" },
+//       { name: "appid", type: "string", required: true, description: "Your API key" },
+//       { name: "units", type: "string", required: false, description: "Units of measurement: standard, metric, or imperial" }
+//     ],
+//     examples: [
+//       {
+//         request: "GET https://api.openweathermap.org/data/2.5/weather?q=Karachi&appid=YOUR_API_KEY&units=metric",
+//         response: {
+//           name: "Karachi",
+//           main: { temp: 32.5, humidity: 68 },
+//           weather: [{ main: "Clear", description: "clear sky" }]
+//         }
+//       }
+//     ],
+//     createdAt: new Date()
+//   },
+
+//   integration: {
+//     title: "How to Use OpenWeatherMap in JavaScript",
+//     description: "A simple example to fetch weather data for a city using JavaScript.",
+//     setupSteps: [
+//       "1. Go to openweathermap.org and sign up for an account.",
+//       "2. Generate your free API key from the dashboard.",
+//       "3. Use the fetch code below to call the API."
+//     ],
+//     codeExamples: [
+// `async function getWeather(city) {
+//     const apiKey = "YOUR_API_KEY";
+//     const url = \`https://api.openweathermap.org/data/2.5/weather?q=\${city}&appid=\${apiKey}&units=metric\`;
+
+//     try {
+//         const res = await fetch(url);
+//         const data = await res.json();
+//         console.log("Weather data:", data);
+
+//         document.getElementById("weatherInfo").innerHTML =
+//             \`City: \${data.name} | Temp: \${data.main.temp}°C | \${data.weather[0].description}\`;
+//     } catch (error) {
+//         console.error("Failed to fetch weather data", error);
+//     }
+// }`
+//     ],
+//     createdAt: new Date()
+//   }
+// };
+
+// ✅ Save to Firestore
+async function saveAPIDataToFirestore() {
+  try {
+    const docRef = await addDoc(collection(db, "apis"), apiData);
+    console.log("API data added with ID:", docRef.id);
+  } catch (e) {
+    console.error("Error adding document:", e);
+  }
+}
+
+// 📞 Call the function
+saveAPIDataToFirestore();
+
+// Search functionality for API cards
+window.searchAPIs = function(searchTerm) {
+    const apiCards = document.querySelectorAll('.api-card');
+    searchTerm = searchTerm.toLowerCase();
+    
+    apiCards.forEach(card => {
+        const apiName = card.querySelector('.api-name').textContent.toLowerCase();
+        if (apiName.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+};
+
+// Add event listeners for search input in both home.html and dashboard.html
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchingApi');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            searchAPIs(e.target.value);
+        });
+    }
+});
+
+// Search functionality for navigation bar input
+window.searchAPIs = function(searchTerm) {
+    const apiCards = document.querySelectorAll('.apiCard');
+    searchTerm = searchTerm.toLowerCase();
+    let foundAny = false;
+    
+    apiCards.forEach(card => {
+        const apiName = card.querySelector('h2').textContent.toLowerCase();
+        if (apiName.includes(searchTerm)) {
+            card.style.display = 'block';
+            foundAny = true;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Show "API not found" message if no results
+    const container = document.getElementById('apiCardContainer') || document.getElementById('apiHomeCardContainer');
+    let notFoundMessage = container.querySelector('.api-not-found');
+    
+    if (!foundAny && searchTerm !== '') {
+        if (!notFoundMessage) {
+            notFoundMessage = document.createElement('div');
+            notFoundMessage.className = 'api-not-found';
+            notFoundMessage.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    <i class="fas fa-search" style="font-size: 48px; margin-bottom: 10px;"></i>
+                    <h3>No APIs Found</h3>
+                    <p>No APIs match your search term "${searchTerm}"</p>
+                </div>
+            `;
+            container.appendChild(notFoundMessage);
+        }
+    } else if (notFoundMessage) {
+        notFoundMessage.remove();
+    }
+};
+
+// Add event listener for search input in navigation bar
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchingApi');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            searchAPIs(e.target.value);
+        });
+    }
 });
