@@ -154,8 +154,10 @@ window.showIntegrationPopup = function(apiId) {
 
 window.closeDocPopup = function() {
     const docPopup = document.getElementById("docPopup");
-    docPopup.style.display = "none";
-}
+    if (docPopup) {
+        docPopup.style.display = "none";
+    }
+};
 
 window.closeIntegrationPopup = function() {
     const integrationPopup = document.getElementById("integrationPopup");
@@ -282,7 +284,7 @@ window.viewDocumentation = async function(apiId) {
 
             // Show the popup
             const docPopup = document.getElementById("docPopup");
-            docPopup.style.display = "f";
+            docPopup.style.display = "flex";
 
             // Update popup content with improved layout and edit buttons
             document.getElementById("addDoc").innerHTML = `
