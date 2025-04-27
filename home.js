@@ -107,3 +107,29 @@
          container.appendChild(apiCard);
      });
  }
+
+ // Mobile Menu Toggle Function
+ function toggleSidebar() {
+     const sidebar = document.querySelector('.sidebar');
+     sidebar.classList.toggle('active');
+ }
+
+ // Close sidebar when clicking outside on mobile
+ document.addEventListener('click', function(event) {
+     const sidebar = document.querySelector('.sidebar');
+     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+
+     if (window.innerWidth <= 768 &&
+         !sidebar.contains(event.target) &&
+         !mobileMenuToggle.contains(event.target)) {
+         sidebar.classList.remove('active');
+     }
+ });
+
+ // Handle window resize
+ window.addEventListener('resize', function() {
+     const sidebar = document.querySelector('.sidebar');
+     if (window.innerWidth > 768) {
+         sidebar.classList.remove('active');
+     }
+ });
